@@ -1,0 +1,259 @@
+package chazi.remotecontrol;
+
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+
+import chazi.remotecontrol.db.RealmDb;
+import chazi.remotecontrol.utils.Connect;
+import chazi.remotecontrol.utils.Global;
+
+import static java.lang.Math.abs;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, KeyEvent.Callback{
+
+//    Context context;
+    Button playPauseButton;
+    Button nextButton;
+    Button previousButton;
+    TextView mousePad;
+
+//    private boolean isConnected=false;
+    private boolean mouseMoved=false;
+    private  Connect connect;
+//    private Socket socket;
+//    private PrintWriter out;
+    public RelativeLayout relativeLayout;
+
+    private float initX =0;
+    private float initY =0;
+    private float disX =0;
+    private float disY =0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        RealmDb.initRealm(getApplicationContext());
+
+//        //初始化数据库,若不存在，创建数据库
+//        Realm.init(MainActivity.this);
+//        RealmDb.realm = Realm.getDefaultInstance();
+//        //保存数据库的config
+//        Global.config = RealmDb.realm.getConfiguration();
+
+        Global.context = this;
+        playPauseButton = (Button)findViewById(R.id.playPauseButton);
+        nextButton = (Button)findViewById(R.id.nextButton);
+        previousButton = (Button)findViewById(R.id.previousButton);
+
+        relativeLayout=(RelativeLayout)findViewById(R.id.activity_main);
+
+        playPauseButton.setOnClickListener(this);
+        nextButton.setOnClickListener(this);
+        previousButton.setOnClickListener(this);
+
+        mousePad = (TextView)findViewById(R.id.mousePad);
+        mousePad.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(Global.isConnected && Global.out!=null){
+                    switch(event.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            //save X and Y positions when user touches the TextView
+                            initX =event.getX();
+                            initY =event.getY();
+                            mouseMoved=false;
+                            Log.i("Mouse","Down");
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            disX = event.getX()- initX;
+                            disY = event.getY()- initY;
+                            initX = event.getX();
+                            initY = event.getY();
+                            if(disX !=0|| disY !=0){
+                                connect.SendMessage(disX +","+ disY);
+                            }
+
+                            //当移动范围小，当做点击
+                            if(abs(disX)>2 && abs(disY)>2) {
+                                mouseMoved = true;
+                            }
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            //consider a tap only if usr did not move mouse after ACTION_DOWN
+                            if(!mouseMoved){
+                                connect.SendMessage(Global.MOUSE_LEFT_CLICK);
+                                Log.i("Mouse","Click");
+                            }
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+
+        if(event.getUnicodeChar()!=0)
+            connect.SendMessage("key-"+event.getUnicodeChar());
+        return super.onKeyUp(keyCode, event);
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.playPauseButton:
+                InputMethodManager inputMethodManager =
+                        (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.toggleSoftInputFromWindow(
+                        relativeLayout.getApplicationWindowToken(),
+                        InputMethodManager.SHOW_FORCED, 0);
+                if (Global.isConnected && Global.out!=null) {
+                    connect.SendMessage(Global.PLAY);
+                }
+                break;
+            case R.id.nextButton:
+                if (Global.isConnected && Global.out!=null) {
+                    connect.SendMessage(Global.NEXT);
+                }
+                break;
+            case R.id.previousButton:
+                if (Global.isConnected && Global.out!=null) {
+                    connect.SendMessage(Global.PREVIOUS);
+                }
+                break;
+        }
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if(id == R.id.action_connect) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+            alertDialog.setTitle("Enter Server IP Address");
+            //alertDialog.setMessage("Enter Server IP address");
+
+            final EditText input = new EditText(MainActivity.this);
+            SharedPreferences preferences=getSharedPreferences("remote",MODE_PRIVATE);
+            String serverIP=preferences.getString("server_ip","");
+            input.setText(serverIP);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            input.setLayoutParams(lp);
+            lp.setMargins(100,100,100,100);
+            alertDialog.setView(input);
+            alertDialog.setIcon(R.drawable.ic_cast_white_24dp);
+
+            alertDialog.setPositiveButton("YES",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            String server_ip = input.getText().toString();
+                            connect = new Connect(server_ip);
+                        }
+                    });
+
+            alertDialog.setNegativeButton("NO",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+            alertDialog.show();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+//    public class SendMessage extends AsyncTask<String,Void,Void>{
+//        @Override
+//        protected Void doInBackground(String... params) {
+//            if(out != null) {
+//                out.println(params[0]);
+//            }else {
+//                Toast.makeText(getApplicationContext(),"没有连接！",Toast.LENGTH_SHORT).show();
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void aVoid) {
+//            Log.d("SendMessage","message sent");
+//        }
+//    }
+//
+//    public class ConnectPhoneTask extends AsyncTask<String,Void,Boolean> {
+//
+//        private final String TAG = this.getClass().getSimpleName();
+//
+//        @Override
+//        protected Boolean doInBackground(String... params) {
+//            boolean result = true;
+//            try {
+//                InetAddress serverAddr = InetAddress.getByName(params[0]);
+//
+//                socket = new Socket(serverAddr, Global.SERVER_PORT);//Open socket on server IP and port
+//                //socket = new Socket(Global.SERVER_IP, Global.SERVER_PORT);//Open socket on server IP and port
+//            } catch (IOException e) {
+//                Log.e(TAG, "Error while connecting", e);
+//                result = false;
+//            }
+//            if(result){
+//                SharedPreferences.Editor editor=getSharedPreferences("remote",MODE_PRIVATE).edit();
+//                editor.putString("server_ip",params[0]);
+//                editor.apply();
+//            }
+//            return result;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Boolean result)
+//        {
+//            isConnected = result;
+//            Toast.makeText(context,isConnected?"Connected to server!":"Error while connecting", Toast.LENGTH_LONG).show();
+//            try {
+//                if(isConnected) {
+//                    out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket
+//                            .getOutputStream())), true); //create output stream to send data to server
+//                }
+//            }catch (IOException e){
+//                Log.e(TAG, "Error while creating OutWriter", e);
+//                Toast.makeText(context,"Error while connecting",Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
+}
