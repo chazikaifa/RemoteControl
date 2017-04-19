@@ -25,6 +25,16 @@ public class Widget extends RealmObject {
     //7     摇杆
 
     private String content;
+    //该字段用于保存该控件的属性，不同类型的控件以不同方式解释
+    //type =
+    //1     按键,直接发送该字段, 字段应为"key-"+按键名
+    //2     按键状态,保存按键名，按键功能在"keyUp"和"keyDown"间切换
+    //3     滚轮,灵敏度
+    //4     触摸屏，灵敏度
+    //5     输入框,暂无
+    //6     组合键,直接发送该字段
+    //7     摇杆,摇杆类型
+
     private String name;
 
     //这个构造函数生成的控件如果panelId不进行修改即只存为自定义控件
@@ -33,15 +43,15 @@ public class Widget extends RealmObject {
     }
 
     public Widget(String panelId){
-        new Widget(panelId,0,0,0,0,0,"","");
+        new Widget(panelId,0,0,0,0,0," "," ");
     }
 
     public Widget(String panelId,int x,int y,int width,int height){
-        new Widget(panelId,x,y,width,height,0,"","");
+        new Widget(panelId,x,y,width,height,0," "," ");
     }
 
     public Widget(String panelId,int x,int y,int width,int height,int type){
-        new Widget(panelId,x,y,width,height,type,"","");
+        new Widget(panelId,x,y,width,height,type," "," ");
     }
 
     public Widget(String panelId, int x, int y, int width, int height, int type, String content, String name){

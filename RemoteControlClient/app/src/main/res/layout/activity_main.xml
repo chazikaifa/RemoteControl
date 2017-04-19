@@ -11,41 +11,29 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/mousePad"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/playPauseButton"
-        android:clickable="true"
+        android:layout_above="@+id/toTest"
         android:background="@android:color/holo_blue_dark"
-        android:id="@+id/mousePad"/>
+        android:clickable="true" />
 
     <Button
+        android:id="@+id/toTest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open Keyboard"
+        android:layout_above="@+id/playPauseButton"
+        android:layout_centerHorizontal="true"
+        android:padding="10dp"
+        android:text="测试" />
+
+
+    <Button
         android:id="@+id/playPauseButton"
-        android:padding="10dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Previous"
-        android:padding="10dp"
-        android:visibility="gone"
-        android:id="@+id/previousButton"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"
+        android:layout_centerHorizontal="true"
         android:padding="10dp"
-        android:id="@+id/nextButton"
-        android:visibility="gone"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:text="Open Keyboard" />
 </RelativeLayout>

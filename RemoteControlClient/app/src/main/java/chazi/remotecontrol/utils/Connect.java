@@ -20,31 +20,30 @@ import java.net.Socket;
 
 public class Connect {
 
-    public Connect(){
-        new Connect(Global.SERVER_IP);
+    public Connect(){}
+
+
+    public static void ConnectToServer(String address){
+        ConnectToServer(address,Global.SERVER_PORT);
     }
 
-    public Connect(String address){
-        new Connect(address,Global.SERVER_PORT);
-    }
-
-    public Connect(String address,int port){
+    public static void ConnectToServer(String address,int port){
         ConnectPhoneTask connectPhoneTask = new ConnectPhoneTask();
         connectPhoneTask.execute(address+":"+port);
     }
 
-    public void SendMessage(String message){
+    public static void SendMessage(String message){
         SendMessageTask sendMessageTask = new SendMessageTask();
         sendMessageTask.execute(message);
     }
 
-    private class SendMessageTask extends AsyncTask<String,Void,Void> {
+    private static class SendMessageTask extends AsyncTask<String,Void,Void> {
         @Override
         protected Void doInBackground(String... params) {
             if(Global.out != null) {
                 Global.out.println(params[0]);
             }else {
-                Toast.makeText(Global.context,"没有连接！",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Global.context,"没有连接！",Toast.LENGTH_SHORT).show();
             }
             return null;
         }
@@ -55,7 +54,7 @@ public class Connect {
         }
     }
 
-    private class ConnectPhoneTask extends AsyncTask<String,Void,Boolean> {
+    private static class ConnectPhoneTask extends AsyncTask<String,Void,Boolean> {
 
         private final String TAG = this.getClass().getSimpleName();
 
@@ -76,9 +75,7 @@ public class Connect {
                 result = false;
             }
             if(result){
-                SharedPreferences.Editor editor= Global.context.getSharedPreferences("remote",Context.MODE_PRIVATE).edit();
-                editor.putString("server_ip",params[0].split(":")[0]);
-                editor.apply();
+                RsSharedUtil.putString(Global.context,"server_ip",params[0].split(":")[0]);
             }
             return result;
         }

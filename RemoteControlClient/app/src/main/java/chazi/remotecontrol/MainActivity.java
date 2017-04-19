@@ -2,6 +2,7 @@ package chazi.remotecontrol;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,22 +24,16 @@ import android.widget.TextView;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.Global;
+import chazi.remotecontrol.utils.RsSharedUtil;
 
 import static java.lang.Math.abs;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, KeyEvent.Callback{
 
-//    Context context;
-    Button playPauseButton;
-    Button nextButton;
-    Button previousButton;
+    Button playPauseButton,testButton;
     TextView mousePad;
 
-//    private boolean isConnected=false;
     private boolean mouseMoved=false;
-    private  Connect connect;
-//    private Socket socket;
-//    private PrintWriter out;
     public RelativeLayout relativeLayout;
 
     private float initX =0;
@@ -59,16 +54,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        //保存数据库的config
 //        Global.config = RealmDb.realm.getConfiguration();
 
-        Global.context = this;
+        Global.context = getApplicationContext();
         playPauseButton = (Button)findViewById(R.id.playPauseButton);
-        nextButton = (Button)findViewById(R.id.nextButton);
-        previousButton = (Button)findViewById(R.id.previousButton);
+        testButton = (Button) findViewById(R.id.toTest);
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this,TestActivity.class);
+                startActivity(intent);
+            }
+        });
 
         relativeLayout=(RelativeLayout)findViewById(R.id.activity_main);
 
         playPauseButton.setOnClickListener(this);
-        nextButton.setOnClickListener(this);
-        previousButton.setOnClickListener(this);
 
         mousePad = (TextView)findViewById(R.id.mousePad);
         mousePad.setOnTouchListener(new View.OnTouchListener() {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             initX = event.getX();
                             initY = event.getY();
                             if(disX !=0|| disY !=0){
-                                connect.SendMessage(disX +","+ disY);
+                                Connect.SendMessage(disX +","+ disY);
                             }
 
                             //当移动范围小，当做点击
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         case MotionEvent.ACTION_UP:
                             //consider a tap only if usr did not move mouse after ACTION_DOWN
                             if(!mouseMoved){
-                                connect.SendMessage(Global.MOUSE_LEFT_CLICK);
+                                Connect.SendMessage(Global.MOUSE_LEFT_CLICK);
                                 Log.i("Mouse","Click");
                             }
                     }
@@ -113,8 +113,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
 
+        String s = String.valueOf((char)event.getUnicodeChar());
+
         if(event.getUnicodeChar()!=0)
-            connect.SendMessage("key-"+event.getUnicodeChar());
+            Connect.SendMessage("key-"+s);
+//            Connect.SendMessage("key-"+event.getUnicodeChar());
+
         return super.onKeyUp(keyCode, event);
     }
 
@@ -128,19 +132,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 inputMethodManager.toggleSoftInputFromWindow(
                         relativeLayout.getApplicationWindowToken(),
                         InputMethodManager.SHOW_FORCED, 0);
-                if (Global.isConnected && Global.out!=null) {
-                    connect.SendMessage(Global.PLAY);
-                }
-                break;
-            case R.id.nextButton:
-                if (Global.isConnected && Global.out!=null) {
-                    connect.SendMessage(Global.NEXT);
-                }
-                break;
-            case R.id.previousButton:
-                if (Global.isConnected && Global.out!=null) {
-                    connect.SendMessage(Global.PREVIOUS);
-                }
                 break;
         }
     }
@@ -165,8 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //alertDialog.setMessage("Enter Server IP address");
 
             final EditText input = new EditText(MainActivity.this);
-            SharedPreferences preferences=getSharedPreferences("remote",MODE_PRIVATE);
-            String serverIP=preferences.getString("server_ip","");
+            String serverIP= RsSharedUtil.getString(getApplicationContext(),"server_ip");
             input.setText(serverIP);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -180,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             String server_ip = input.getText().toString();
-                            connect = new Connect(server_ip);
+                            Connect.ConnectToServer(server_ip);
                         }
                     });
 

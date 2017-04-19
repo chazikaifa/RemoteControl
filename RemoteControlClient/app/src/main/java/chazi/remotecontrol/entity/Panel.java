@@ -1,5 +1,8 @@
 package chazi.remotecontrol.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -17,7 +20,7 @@ import io.realm.internal.Collection;
  * Created by 595056078 on 2017/4/5.
  */
 
-public class Panel extends RealmObject {
+public class Panel extends RealmObject implements Parcelable{
 
     //id采用UUID作主键，为-1时表示为自定义按键，0为默认按键
     @PrimaryKey
@@ -47,9 +50,7 @@ public class Panel extends RealmObject {
 
 
     public Panel(String id, String name, int order) {
-        this.id = id;
-        this.name = name;
-        this.order = order;
+        new Panel(id,name,order,true);
     }
 
     public Panel(String id, String name, int order,boolean isVertical) {
@@ -78,6 +79,25 @@ public class Panel extends RealmObject {
         RealmDb.saveWidgets(widgetList,id);
         RealmDb.savePanel(this);
     }
+
+    protected Panel(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        order = in.readInt();
+        vertical = in.readByte() != 0;
+    }
+
+    public static final Creator<Panel> CREATOR = new Creator<Panel>() {
+        @Override
+        public Panel createFromParcel(Parcel in) {
+            return new Panel(in);
+        }
+
+        @Override
+        public Panel[] newArray(int size) {
+            return new Panel[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -133,5 +153,18 @@ public class Panel extends RealmObject {
         }
 
         return jsonObject;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(name);
+        parcel.writeInt(order);
+        parcel.writeByte((byte) (vertical ? 1 : 0));
     }
 }

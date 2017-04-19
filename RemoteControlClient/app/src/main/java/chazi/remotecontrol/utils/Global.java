@@ -23,7 +23,5 @@ public class Global {
     public static boolean isConnected = false;
 
     public static final String PLAY="play";
-    public static final String NEXT="next";
-    public static final String PREVIOUS="previous";
     public static final String MOUSE_LEFT_CLICK="left_click";
 }
