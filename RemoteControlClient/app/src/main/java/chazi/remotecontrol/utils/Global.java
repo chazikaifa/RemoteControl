@@ -22,6 +22,5 @@ public class Global {
     public static Context context;
     public static boolean isConnected = false;
 
-    public static final String PLAY="play";
-    public static final String MOUSE_LEFT_CLICK="left_click";
+    public static final String MOUSE_LEFT_CLICK="mouse~left";
 }

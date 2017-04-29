@@ -87,7 +87,7 @@ public class ContentCreator {
             KEY_F10, KEY_F11, KEY_F12
     };
 
-    public static final String KEY_HYPHEN = "~";
+    public static final String KEY_HYPHEN = "/s";
     public static final String KEY_DIFFERENT_NOTES = "`";
     public static final String KEY_EXCLAMATION_MARK = "!";
     public static final String KEY_AT_SIGN = "@";
@@ -99,7 +99,7 @@ public class ContentCreator {
     public static final String KEY_ASTERISK = "*";
     public static final String KEY_LEFT_BRACKET = "(";
     public static final String KEY_RIGHT_BRACKET = ")";
-    public static final String KEY_MINUS = "/s";
+    public static final String KEY_MINUS = "-";
     public static final String KEY_UNDERLINE = "_";
     public static final String KEY_EQUAL = "=";
     public static final String KEY_PLUS = "+";
@@ -199,9 +199,9 @@ public class ContentCreator {
 
     public static String Click(int flag, String content) {
 
-        //若content不为空，则增加'-'连接符
+        //若content不为空，则增加'~'连接符
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
         //鼠标点击，根据flag增加不同的点击事件
@@ -230,9 +230,9 @@ public class ContentCreator {
 
         //大于零则为左键，否则右键
         if (flag >= 0) {
-            content += "-left";
+            content += "~left";
         } else {
-            content += "-right";
+            content += "~right";
         }
 
         return content;
@@ -244,12 +244,12 @@ public class ContentCreator {
     }
 
     public static String move(int x, int y, String content) {
-        //若content不为空，则增加'-'连接符
+        //若content不为空，则增加'~'连接符
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
-        content += "mouse@-" + x + "," + y;
+        content += "mouse@~" + x + "," + y;
 
         return content;
     }
@@ -261,10 +261,10 @@ public class ContentCreator {
 
     public static String absMove(int x, int y, String content) {
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
-        content += "mouse-" + x + "," + y;
+        content += "mouse~" + x + "," + y;
 
         return content;
     }
@@ -276,16 +276,16 @@ public class ContentCreator {
 
     public static String wheel(int flag, String content) {
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
         //1为向上滚
-        //-1为向下滚
+        //~1为向下滚
         switch (flag) {
             case 1:
-                content += "wheel-up";
-            case -1:
-                content += "wheel-down";
+                content += "wheel~up";
+            case ~1:
+                content += "wheel~down";
         }
 
         return content;
@@ -297,10 +297,10 @@ public class ContentCreator {
 
     public static String delay(int num, String content) {
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
-        content += "delay-" + num;
+        content += "delay~" + num;
 
         return content;
     }
@@ -312,19 +312,19 @@ public class ContentCreator {
 
     private static String key(int flag, String keyName, String content) {
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
         //0表示按下并松开
         //1表示按下
-        //-1表示松开
+        //~1表示松开
         switch (flag) {
             case 0:
-                content += "key-" + keyName;
+                content += "key~" + keyName;
             case 1:
-                content += "keyUp-" + keyName;
-            case -1:
-                content += "keyDown-" + keyName;
+                content += "keyUp~" + keyName;
+            case ~1:
+                content += "keyDown~" + keyName;
             default:
         }
 
@@ -337,7 +337,7 @@ public class ContentCreator {
 
     public static String sendString(String s, String content) {
         if (!content.equals("")) {
-            content += "-";
+            content += "~";
         }
 
         //左斜杠转义为双斜杠
@@ -346,7 +346,7 @@ public class ContentCreator {
         s = matcher.replaceAll("//");
 
         //减号转义为/s
-        pattern = Pattern.compile("-");
+        pattern = Pattern.compile("~");
         matcher = pattern.matcher(s);
         s = matcher.replaceAll("/s");
 
@@ -355,39 +355,39 @@ public class ContentCreator {
         //换行符转义成按键回车
         if (strings.length > 1) {
             //转义时如果遇到连续的换行符，会分割出空字符串，则会出现通信出错，所以必须进行处理
-            //即当出现空字符串时，不添加"string-"直接跳过
+            //即当出现空字符串时，不添加"string~"直接跳过
             //
             //具体分三部分处理
             //
             //数组第一项
-            //  若第一项为空，添加"key-enter"
-            //  否则添加"string-"+第一串字符串,和"-key-enter"
-            //  即第一条指令前不加"-"
+            //  若第一项为空，添加"key~enter"
+            //  否则添加"string~"+第一串字符串,和"~key~enter"
+            //  即第一条指令前不加"~"
             //数组最后一项
-            //  若最后一项不为空则添加"string-"+最后一串字符串
+            //  若最后一项不为空则添加"string~"+最后一串字符串
             //其他
-            //  类似第一项的处理，不过所有指令前面都需添加"-"
+            //  类似第一项的处理，不过所有指令前面都需添加"~"
             if (strings[0].equals("")) {
-                content += "key-" + KEY_ENTER;
+                content += "key~" + KEY_ENTER;
             } else {
-                content += "string-" + strings[0];
-                content += "-key-" + KEY_ENTER;
+                content += "string~" + strings[0];
+                content += "~key~" + KEY_ENTER;
             }
             for (int i = 1; i < (strings.length - 1); i++) {
                 if (strings[i].equals("")) {
-                    content += "-key-" + KEY_ENTER;
+                    content += "~key~" + KEY_ENTER;
                 } else {
-                    content += "-string-" + strings[i];
-                    content += "-key-" + KEY_ENTER;
+                    content += "~string~" + strings[i];
+                    content += "~key~" + KEY_ENTER;
                 }
             }
             if (!strings[strings.length - 1].equals("")) {
-                content += "-string-" + strings[strings.length - 1];
+                content += "~string~" + strings[strings.length - 1];
             }
 
         } else {
             //若没有换行符，直接添加
-            content += "string-" + s;
+            content += "string~" + s;
         }
 
         return content;

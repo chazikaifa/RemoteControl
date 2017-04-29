@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 
 import chazi.remotecontrol.db.RealmDb;
+import chazi.remotecontrol.entity.Panel;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.Global;
 import chazi.remotecontrol.utils.RsSharedUtil;
@@ -30,7 +31,8 @@ import static java.lang.Math.abs;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, KeyEvent.Callback{
 
-    Button playPauseButton,testButton;
+    Button playPauseButton;
+    Button testButton,btn_left,btn_right,view_test;
     TextView mousePad;
 
     private boolean mouseMoved=false;
@@ -48,14 +50,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         RealmDb.initRealm(getApplicationContext());
 
-//        //初始化数据库,若不存在，创建数据库
-//        Realm.init(MainActivity.this);
-//        RealmDb.realm = Realm.getDefaultInstance();
-//        //保存数据库的config
-//        Global.config = RealmDb.realm.getConfiguration();
-
         Global.context = getApplicationContext();
         playPauseButton = (Button)findViewById(R.id.playPauseButton);
+
+        view_test = (Button) findViewById(R.id.view_test);
+        view_test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Panel panel = new Panel("1","面板1",0,true);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("panel",panel);
+
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this,PanelActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
         testButton = (Button) findViewById(R.id.toTest);
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +76,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this,TestActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        btn_left = (Button) findViewById(R.id.left_click);
+        btn_right = (Button) findViewById(R.id.right_click);
+
+        btn_left.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction();
+
+                switch (action){
+                    case MotionEvent.ACTION_BUTTON_PRESS:
+                    case MotionEvent.ACTION_DOWN:
+                        Connect.SendMessage("mouseHold~left");
+                        break;
+                    case MotionEvent.ACTION_BUTTON_RELEASE:
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_HOVER_EXIT:
+                        Connect.SendMessage("mouseRelease~left");
+                        break;
+                }
+
+                return false;
+            }
+        });
+
+        btn_right.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction();
+
+                switch (action){
+                    case MotionEvent.ACTION_BUTTON_PRESS:
+                    case MotionEvent.ACTION_DOWN:
+                        Connect.SendMessage("mouseHold~right");
+                        break;
+                    case MotionEvent.ACTION_BUTTON_RELEASE:
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_HOVER_EXIT:
+                        Connect.SendMessage("mouseRelease~right");
+                        break;
+                }
+
+                return false;
             }
         });
 
@@ -89,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             initX = event.getX();
                             initY = event.getY();
                             if(disX !=0|| disY !=0){
-                                Connect.SendMessage(disX +","+ disY);
+                                Connect.SendMessage("mouse@~"+disX +","+ disY);
                             }
 
                             //当移动范围小，当做点击
@@ -116,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String s = String.valueOf((char)event.getUnicodeChar());
 
         if(event.getUnicodeChar()!=0)
-            Connect.SendMessage("key-"+s);
-//            Connect.SendMessage("key-"+event.getUnicodeChar());
+            Connect.SendMessage("key~"+s);
+//            Connect.SendMessage("key~"+event.getUnicodeChar());
 
         return super.onKeyUp(keyCode, event);
     }

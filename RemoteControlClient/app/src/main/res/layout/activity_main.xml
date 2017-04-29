@@ -14,18 +14,56 @@
         android:id="@+id/mousePad"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/toTest"
+        android:layout_above="@+id/test_ll"
+        android:layout_marginBottom="45dp"
         android:background="@android:color/holo_blue_dark"
         android:clickable="true" />
 
-    <Button
-        android:id="@+id/toTest"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@+id/test_ll">
+
+        <Button
+            android:id="@+id/left_click"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="左键" />
+
+        <Button
+            android:id="@+id/right_click"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="右键" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/test_ll"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/playPauseButton"
-        android:layout_centerHorizontal="true"
-        android:padding="10dp"
-        android:text="测试" />
+        android:gravity="center"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/toTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="测试" />
+
+        <Button
+            android:id="@+id/view_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="视图测试"/>
+
+    </LinearLayout>
+
 
 
     <Button

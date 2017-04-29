@@ -1,5 +1,8 @@
 package chazi.remotecontrol.entity;
 
+import android.content.Context;
+
+import chazi.remotecontrol.utils.DensityUtil;
 import io.realm.RealmObject;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,10 +13,10 @@ import org.json.JSONObject;
 
 public class Widget extends RealmObject {
     private String panelId;
-    private int X;
-    private int Y;
-    private int width;
-    private int height;
+    private float X;
+    private float Y;
+    private float width;
+    private float height;
     private int type;
     //type表示该控件为以下类型:
     //1     按键
@@ -46,15 +49,15 @@ public class Widget extends RealmObject {
         new Widget(panelId,0,0,0,0,0," "," ");
     }
 
-    public Widget(String panelId,int x,int y,int width,int height){
+    public Widget(String panelId,float x,float y,float width,float height){
         new Widget(panelId,x,y,width,height,0," "," ");
     }
 
-    public Widget(String panelId,int x,int y,int width,int height,int type){
+    public Widget(String panelId,float x,float y,float width,float height,int type){
         new Widget(panelId,x,y,width,height,type," "," ");
     }
 
-    public Widget(String panelId, int x, int y, int width, int height, int type, String content, String name){
+    public Widget(String panelId, float x, float y, float width, float height, int type, String content, String name){
         this.panelId = panelId;
         X = x;
         Y = y;
@@ -78,10 +81,10 @@ public class Widget extends RealmObject {
 
     public Widget(JSONObject jsonObject) throws JSONException {
         this.panelId = jsonObject.getString("panelId");
-        X = jsonObject.getInt("X");
-        Y = jsonObject.getInt("Y");
-        this.width = jsonObject.getInt("width");
-        this.height = jsonObject.getInt("height");
+        X = (float) jsonObject.getDouble("X");
+        Y = (float) jsonObject.getDouble("Y");
+        this.width = (float) jsonObject.getDouble("width");
+        this.height = (float) jsonObject.getDouble("height");
         this.type = jsonObject.getInt("type");
         this.content = jsonObject.getString("content");
         this.name = jsonObject.getString("name");
@@ -91,40 +94,56 @@ public class Widget extends RealmObject {
         return panelId;
     }
 
-    public void setPanelId(String pannelId) {
-        this.panelId = pannelId;
+    public void setPanelId(String panelId) {
+        this.panelId = panelId;
     }
 
-    public int getX() {
+    public float getX() {
         return X;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         X = x;
     }
 
-    public int getY() {
+    public float getY() {
         return Y;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         Y = y;
     }
 
-    public int getWidth() {
+    public float getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(float width) {
         this.width = width;
     }
 
-    public int getHeight() {
+    public float getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(float height) {
         this.height = height;
+    }
+
+    public void setWidthInPx(float pxw, Context context){
+        width = DensityUtil.px2dip(context,pxw);
+    }
+
+    public int getWidthInPx(Context context){
+        return DensityUtil.dip2px(context, width);
+    }
+
+    public void setHeightInPx(float pxh, Context context){
+        height = DensityUtil.px2dip(context,pxh);
+    }
+
+    public int getHeightInPx(Context context){
+        return DensityUtil.dip2px(context, height);
     }
 
     public int getType() {
