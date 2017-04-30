@@ -3,9 +3,10 @@ package chazi.remotecontrol.utils;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import android.content.Context;
+import android.widget.Toast;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -92,7 +93,7 @@ public class Connect {
                 }
             }catch (IOException e){
                 Log.e(TAG, "Error while creating OutWriter", e);
-                Toast.makeText(Global.context,"Error while connecting",Toast.LENGTH_LONG).show();
+                //Toast.makeText(Global.context,"Error while connecting",Toast.LENGTH_LONG).show();
             }
         }
     }

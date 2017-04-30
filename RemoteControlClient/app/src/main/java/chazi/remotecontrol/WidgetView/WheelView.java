@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
+import chazi.remotecontrol.utils.ContentCreator;
 
 /**
  * Created by 595056078 on 2017/4/29.
@@ -53,7 +54,7 @@ public class WheelView extends WidgetView {
             } else {
                 symbol = 1;
             }
-            Connect.SendMessage("wheel~"+(symbol*sensitivity));
+            Connect.SendMessage(ContentCreator.wheel(symbol*sensitivity));
         }
     }
 

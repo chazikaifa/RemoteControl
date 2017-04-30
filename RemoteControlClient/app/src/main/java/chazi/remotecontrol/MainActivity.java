@@ -24,6 +24,7 @@ import android.widget.TextView;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
 import chazi.remotecontrol.utils.Connect;
+import chazi.remotecontrol.utils.ContentCreator;
 import chazi.remotecontrol.utils.Global;
 import chazi.remotecontrol.utils.RsSharedUtil;
 
@@ -90,13 +91,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (action){
                     case MotionEvent.ACTION_BUTTON_PRESS:
                     case MotionEvent.ACTION_DOWN:
-                        Connect.SendMessage("mouseHold~left");
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_LEFT));
                         break;
                     case MotionEvent.ACTION_BUTTON_RELEASE:
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_HOVER_EXIT:
-                        Connect.SendMessage("mouseRelease~left");
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_LEFT));
                         break;
                 }
 
@@ -112,13 +113,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (action){
                     case MotionEvent.ACTION_BUTTON_PRESS:
                     case MotionEvent.ACTION_DOWN:
-                        Connect.SendMessage("mouseHold~right");
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_RIGHT));
                         break;
                     case MotionEvent.ACTION_BUTTON_RELEASE:
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_HOVER_EXIT:
-                        Connect.SendMessage("mouseRelease~right");
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_RIGHT));
                         break;
                 }
 
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             initX = event.getX();
                             initY = event.getY();
                             if(disX !=0|| disY !=0){
-                                Connect.SendMessage("mouse@~"+disX +","+ disY);
+                                Connect.SendMessage(ContentCreator.move(disX,disY));
                             }
 
                             //当移动范围小，当做点击
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         case MotionEvent.ACTION_UP:
                             //consider a tap only if usr did not move mouse after ACTION_DOWN
                             if(!mouseMoved){
-                                Connect.SendMessage(Global.MOUSE_LEFT_CLICK);
+                                Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_CLICK_LEFT));
                                 Log.i("Mouse","Click");
                             }
                     }
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String s = String.valueOf((char)event.getUnicodeChar());
 
         if(event.getUnicodeChar()!=0)
-            Connect.SendMessage("key~"+s);
+            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_CLICK,s));
 //            Connect.SendMessage("key~"+event.getUnicodeChar());
 
         return super.onKeyUp(keyCode, event);

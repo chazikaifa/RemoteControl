@@ -15,7 +15,7 @@ public class Widget extends RealmObject {
     private String panelId;
     private float X;
     private float Y;
-    private float width;
+    private float width;//以dp为单位，方便适配不同机型
     private float height;
     private int type;
     //type表示该控件为以下类型:

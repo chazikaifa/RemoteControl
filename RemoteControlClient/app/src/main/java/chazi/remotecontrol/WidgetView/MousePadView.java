@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
+import chazi.remotecontrol.utils.ContentCreator;
 import chazi.remotecontrol.utils.DensityUtil;
 import chazi.remotecontrol.utils.Global;
 
@@ -102,7 +103,7 @@ public class MousePadView extends WidgetView{
         super.onMove(motionEvent);
 
         if (disX != 0 || disY != 0) {
-            Connect.SendMessage("mouse@~"+disX +","+ disY);
+            Connect.SendMessage(ContentCreator.move(disX,disY));
         }
     }
 

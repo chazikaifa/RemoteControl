@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
+import chazi.remotecontrol.utils.ContentCreator;
 
 /**
  * Created by 595056078 on 2017/4/19.
@@ -49,14 +50,14 @@ public class ButtonView extends WidgetView {
     protected void onDown(MotionEvent motionEvent) {
         super.onDown(motionEvent);
 
-        Connect.SendMessage("keyDown~"+operation);
+        Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_PRESS,operation));
     }
 
     @Override
     protected void onUp(MotionEvent motionEvent) {
         super.onUp(motionEvent);
 
-        Connect.SendMessage("keyUp~"+operation);
+        Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
     }
 
     public void setOperation(String op){

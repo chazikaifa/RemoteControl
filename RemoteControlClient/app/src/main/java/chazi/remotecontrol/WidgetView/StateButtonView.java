@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
+import chazi.remotecontrol.utils.ContentCreator;
 
 /**
  * Created by 595056078 on 2017/4/29.
@@ -49,9 +50,9 @@ public class StateButtonView extends WidgetView {
         super.onUp(motionEvent);
 
         if(isPress) {
-            Connect.SendMessage("keyUp~" + operation);
+            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
         }else {
-            Connect.SendMessage("keyDown~" + operation);
+            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
         }
     }
 

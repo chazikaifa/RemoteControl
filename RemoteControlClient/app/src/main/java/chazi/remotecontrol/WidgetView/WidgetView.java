@@ -27,6 +27,38 @@ public class WidgetView extends RelativeLayout {
     protected float initX,initY,disX,disY;
     protected boolean mouseMoved;
 
+    //根据widget的类型，生成不同的视图
+    public static WidgetView Creator(Context context,Widget widget){
+
+        WidgetView v = null;
+        switch (widget.getType()){
+            case 1:
+                v = new ButtonView(context, widget);
+                break;
+            case 2:
+                v = new StateButtonView(context, widget);
+                break;
+            case 3:
+                v = new WheelView(context, widget);
+                break;
+            case 4:
+                v = new MousePadView(context, widget);
+                break;
+            case 5:
+                v = new InputView(context, widget);
+                break;
+            case 6:
+                v = new ButtonGroupView(context, widget);
+                break;
+            case 7:
+                v = new RockerView(context, widget);
+                break;
+            default:
+                break;
+        }
+        return v;
+    }
+
     public WidgetView(Context context){
         super(context);
     }

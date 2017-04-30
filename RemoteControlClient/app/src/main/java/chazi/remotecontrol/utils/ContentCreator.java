@@ -15,6 +15,19 @@ import java.util.List;
 
 public class ContentCreator {
 
+    public static final int MOUSE_CLICK_LEFT = 1;
+    public static final int MOUSE_PRESS_LEFT = 2;
+    public static final int MOUSE_RELEASE_LEFT = 3;
+    public static final int MOUSE_DOUBLE_CLICK_LEFT = 4;
+    public static final int MOUSE_CLICK_RIGHT = -1;
+    public static final int MOUSE_PRESS_RIGHT = -2;
+    public static final int MOUSE_RELEASE_RIGHT = -3;
+    public static final int MOUSE_DOUBLE_CLICK_RIGHT = -4;
+
+    public static final int KEY_CLICK = 0;
+    public static final int KEY_PRESS = 1;
+    public static final int KEY_RELEASE = -1;
+
     public static final String KEY_A = "a";
     public static final String KEY_B = "b";
     public static final String KEY_C = "c";
@@ -239,11 +252,11 @@ public class ContentCreator {
     }
 
     //鼠标相对移动
-    public static String move(int x, int y) {
+    public static String move(float x,float y) {
         return move(x, y, "");
     }
 
-    public static String move(int x, int y, String content) {
+    public static String move(float x, float y, String content) {
         //若content不为空，则增加'~'连接符
         if (!content.equals("")) {
             content += "~";
@@ -270,6 +283,7 @@ public class ContentCreator {
     }
 
     //滚轮
+    //flag即为滚动的距离
     public static String wheel(int flag) {
         return wheel(flag, "");
     }
@@ -279,14 +293,7 @@ public class ContentCreator {
             content += "~";
         }
 
-        //1为向上滚
-        //~1为向下滚
-        switch (flag) {
-            case 1:
-                content += "wheel~up";
-            case ~1:
-                content += "wheel~down";
-        }
+        content += "wheel~"+flag;
 
         return content;
     }
@@ -310,20 +317,20 @@ public class ContentCreator {
         return key(flag, keyName, "");
     }
 
-    private static String key(int flag, String keyName, String content) {
+    public static String key(int flag, String keyName, String content) {
         if (!content.equals("")) {
             content += "~";
         }
 
         //0表示按下并松开
         //1表示按下
-        //~1表示松开
+        //-1表示松开
         switch (flag) {
             case 0:
                 content += "key~" + keyName;
             case 1:
                 content += "keyUp~" + keyName;
-            case ~1:
+            case -1:
                 content += "keyDown~" + keyName;
             default:
         }
@@ -345,7 +352,7 @@ public class ContentCreator {
         Matcher matcher = pattern.matcher(s);
         s = matcher.replaceAll("//");
 
-        //减号转义为/s
+        //~转义为/s
         pattern = Pattern.compile("~");
         matcher = pattern.matcher(s);
         s = matcher.replaceAll("/s");
