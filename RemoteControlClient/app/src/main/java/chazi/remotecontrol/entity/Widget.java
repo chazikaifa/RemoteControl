@@ -42,19 +42,19 @@ public class Widget extends RealmObject {
 
     //这个构造函数生成的控件如果panelId不进行修改即只存为自定义控件
     public Widget(){
-        new Widget("-1");
+        this("-1");
     }
 
     public Widget(String panelId){
-        new Widget(panelId,0,0,0,0,0," "," ");
+        this(panelId,0,0,0,0,0," "," ");
     }
 
     public Widget(String panelId,float x,float y,float width,float height){
-        new Widget(panelId,x,y,width,height,0," "," ");
+        this(panelId,x,y,width,height,0," "," ");
     }
 
     public Widget(String panelId,float x,float y,float width,float height,int type){
-        new Widget(panelId,x,y,width,height,type," "," ");
+        this(panelId,x,y,width,height,type," "," ");
     }
 
     public Widget(String panelId, float x, float y, float width, float height, int type, String content, String name){

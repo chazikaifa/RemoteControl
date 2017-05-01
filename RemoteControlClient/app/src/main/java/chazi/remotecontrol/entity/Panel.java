@@ -13,6 +13,7 @@ import java.util.List;
 
 import chazi.remotecontrol.db.RealmDb;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.internal.Collection;
 
@@ -29,28 +30,33 @@ public class Panel extends RealmObject implements Parcelable{
     private int order;
     private boolean vertical;
 
+    //仅作列表呈现时使用，不存于数据库
+    @Ignore
+    private boolean isSelect = false;
+
     public Panel(){
 
     }
 
     public Panel(String name){
+        this("",name,100);
         String uid = UUID.randomUUID().toString();
-        new Panel(uid,name,100);
-
+        setId(uid);
     }
 
     public Panel(String name,String id){
-        new Panel(id,name,100);
+        this(id,name,100);
     }
 
     public Panel(String name, int order) {
+        new Panel("",name,order,true);
         String uid = UUID.randomUUID().toString();
-        new Panel(uid,name,order,true);
+        setId(uid);
     }
 
 
     public Panel(String id, String name, int order) {
-        new Panel(id,name,order,true);
+        this(id,name,order,true);
     }
 
     public Panel(String id, String name, int order,boolean isVertical) {
@@ -166,5 +172,13 @@ public class Panel extends RealmObject implements Parcelable{
         parcel.writeString(name);
         parcel.writeInt(order);
         parcel.writeByte((byte) (vertical ? 1 : 0));
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
     }
 }

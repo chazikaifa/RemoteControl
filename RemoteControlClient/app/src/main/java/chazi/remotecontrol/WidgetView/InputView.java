@@ -1,6 +1,7 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -12,6 +13,7 @@ import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.ContentCreator;
 import chazi.remotecontrol.utils.DensityUtil;
+import chazi.remotecontrol.utils.Global;
 
 /**
  * Created by 595056078 on 2017/4/30.
@@ -33,13 +35,22 @@ public class InputView extends WidgetView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
+        setBackgroundColor(0xff0099cc);
+
+        int margin = DensityUtil.dip2px(context,5);
+
         LayoutParams lp_input = new LayoutParams(widget.getWidthInPx(context), widget.getHeightInPx(context));
-        lp_input.setMargins(0, 0, DensityUtil.dip2px(context, 50), 0);
+        lp_input.setMargins(0, 0, margin, 0);
         input.setLayoutParams(lp_input);
+        input.setTextColor(Color.BLACK);
+        input.setId(generateViewId());
 
+        float btn_height = widget.getHeight()-10;
+        btn_height = DensityUtil.dip2px(context,btn_height);
 
-        LayoutParams lp_send = new LayoutParams(DensityUtil.dip2px(context, 50), widget.getHeightInPx(context));
-        lp_send.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+        LayoutParams lp_send = new LayoutParams(DensityUtil.dip2px(context, 50), (int)btn_height);
+        lp_send.addRule(RelativeLayout.RIGHT_OF,input.getId());
+        lp_send.setMargins(0,margin,0,margin);
         btn_send.setLayoutParams(lp_send);
 
         if (!isEdit()) {

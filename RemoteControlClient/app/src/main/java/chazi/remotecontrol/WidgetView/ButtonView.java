@@ -31,7 +31,6 @@ public class ButtonView extends WidgetView {
                 break;
             }
         }
-
     }
 
     @Override

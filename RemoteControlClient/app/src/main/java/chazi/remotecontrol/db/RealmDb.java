@@ -8,6 +8,8 @@ import chazi.remotecontrol.entity.Panel;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.ContentCreator;
 import io.realm.Realm;
+import io.realm.Sort;
+
 import android.content.Context;
 
 import java.util.Collections;
@@ -105,8 +107,137 @@ public class RealmDb {
         realm.commitTransaction();
     }
 
-    public static List<Panel> getAllPanel(){
-        return realm.where(Panel.class).findAll();
+    public static List<Panel> getAllPanels(){
+        return realm.where(Panel.class).findAll().sort("order", Sort.ASCENDING);
+    }
+
+    //获取测试数据
+    public static List<Panel> getTestPanels(){
+
+        List<Panel> panels = realm.where(Panel.class).contains("id","test").findAll();
+
+        if(panels.isEmpty()) {
+
+            panels = new ArrayList<>();
+
+            realm.beginTransaction();
+
+            Panel panel1 = new Panel("test1", "按键", 1);
+            Panel panel2 = new Panel("test2", "状态按键", 2);
+            Panel panel3 = new Panel("test3", "滚轮", 3);
+            Panel panel4 = new Panel("test4", "触摸板", 4);
+            Panel panel5 = new Panel("test5", "输入框", 5);
+            Panel panel6 = new Panel("test6", "组合键", 6);
+            Panel panel7 = new Panel("test7", "摇杆", 7);
+
+            panels.add(panel1);
+            panels.add(panel2);
+            panels.add(panel3);
+            panels.add(panel4);
+            panels.add(panel5);
+            panels.add(panel6);
+            panels.add(panel7);
+
+            realm.copyToRealm(panels);
+
+            //按键
+            Widget widget = new Widget(panel1.getId());
+            widget.setType(1);
+            widget.setX(300);
+            widget.setY(300);
+            widget.setWidth(100);
+            widget.setHeight(50);
+            widget.setName("按键A");
+            widget.setContent(ContentCreator.key(ContentCreator.KEY_CLICK,ContentCreator.KEY_A));
+
+            realm.copyToRealm(widget);
+
+            //状态按键
+            widget = new Widget(panel2.getId());
+            widget.setType(2);
+            widget.setX(300);
+            widget.setY(300);
+            widget.setWidth(100);
+            widget.setHeight(50);
+            widget.setName("状态按键A");
+            widget.setContent(ContentCreator.key(ContentCreator.KEY_CLICK,ContentCreator.KEY_A));
+
+            realm.copyToRealm(widget);
+
+            //滚轮
+            widget = new Widget(panel3.getId());
+            widget.setType(3);
+            widget.setX(300);
+            widget.setY(300);
+            widget.setWidth(50);
+            widget.setHeight(200);
+            widget.setName("滚轮");
+            widget.setContent("sen~1");
+
+            realm.copyToRealm(widget);
+
+            //触摸板
+            widget = new Widget(panel4.getId());
+            widget.setType(4);
+            widget.setX(10);
+            widget.setY(50);
+            widget.setWidth(300);
+            widget.setHeight(400);
+            widget.setName("触摸板");
+            widget.setContent("");
+
+            realm.copyToRealm(widget);
+
+            //输入框
+            widget = new Widget(panel5.getId());
+            widget.setType(5);
+            widget.setX(5);
+            widget.setY(10);
+            widget.setWidth(300);
+            widget.setHeight(70);
+            widget.setName("输入框");
+            widget.setContent("");
+
+            realm.copyToRealm(widget);
+
+            //自定义按键
+            widget = new Widget(panel6.getId());
+            widget.setType(6);
+            widget.setX(300);
+            widget.setY(300);
+            widget.setWidth(100);
+            widget.setHeight(50);
+            widget.setName("呼叫任务管理器");
+
+            String content = "";
+            content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_CTRL,content);
+            content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_ALT,content);
+            content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_DELETE,content);
+
+            content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_CTRL,content);
+            content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_ALT,content);
+            content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_DELETE,content);
+
+            widget.setContent(content);
+
+            realm.copyToRealm(widget);
+
+            //摇杆
+            widget = new Widget(panel7.getId());
+            widget.setType(7);
+            widget.setX(300);
+            widget.setY(300);
+            widget.setWidth(100);
+            widget.setHeight(100);
+            widget.setName("摇杆");
+            widget.setContent("");
+
+            realm.copyToRealm(widget);
+
+            realm.commitTransaction();
+        }
+
+        return panels;
     }
     //========================================================IP==================================================================================
 

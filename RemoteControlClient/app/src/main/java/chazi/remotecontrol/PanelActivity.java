@@ -11,9 +11,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chazi.remotecontrol.WidgetView.MousePadView;
+import chazi.remotecontrol.WidgetView.WidgetView;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
 import chazi.remotecontrol.entity.Widget;
@@ -27,6 +29,7 @@ public class PanelActivity extends Activity {
     private Panel panel;
     private boolean backFlag = false;
     private List<Widget> widgetList;
+    private List<WidgetView> widgetViewList;
     private RelativeLayout panelView;
     private TextView title;
     private ImageView btn_edit,btn_back;
@@ -47,7 +50,7 @@ public class PanelActivity extends Activity {
             }
 
             widgetList = RealmDb.getWidgetsByPanelId(panel.getId());
-
+            widgetViewList = new ArrayList<>();
 
         } else {
             Toast.makeText(getApplicationContext(), "面板数据传输错误！", Toast.LENGTH_LONG).show();
@@ -77,35 +80,24 @@ public class PanelActivity extends Activity {
 
         panelView = (RelativeLayout) findViewById(R.id.panelView);
 
-        Widget widget = new Widget("1");
-        widget.setX(10);
-        widget.setY(50);
-        widget.setWidth(300);
-        widget.setHeight(400);
 
-        MousePadView testView = new MousePadView(getApplicationContext(),widget);
-        testView.setEdit(true);
-        testView.setFocus(true);
+        for(Widget widget:widgetList){
+            WidgetView v = WidgetView.Creator(getApplicationContext(),widget);
+            widgetViewList.add(v);
+            panelView.addView(v);
+        }
 
-        panelView.addView(testView);
-    }
-
-    public void AddWidgetView(Widget widget) {
-
-        View v = new View(PanelActivity.this);
-
-        v.setX(widget.getX());
-        v.setY(widget.getY());
-
-
-        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) v.getLayoutParams();
-        lp.width = (int) widget.getWidth();
-        lp.height = (int) widget.getHeight();
-
-        v.setLayoutParams(lp);
-
-        addContentView(v, lp);
-
+//        Widget widget = new Widget("1");
+//
+//widget.setX(10);
+//        widget.setY(50);
+//        widget.setWidth(300);
+//        widget.setHeight(400);
+//        MousePadView testView = new MousePadView(getApplicationContext(),widget);
+//        testView.setEdit(true);
+//        testView.setFocus(true);
+//
+//        panelView.addView(testView);
     }
 
     @Override

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/tab_rl"
+        android:background="#0FA0A0"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            android:layout_marginLeft="20dp"
+            android:src="#0F0ABA"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_toRightOf="@+id/btn_back"
+            android:layout_marginLeft="20dp"
+            android:textSize="20sp"
+            android:text="选择面板"/>
+
+        <ImageView
+            android:id="@+id/btn_edit"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:src="#0F0ABA"/>
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/panel_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ListView>
+</LinearLayout>

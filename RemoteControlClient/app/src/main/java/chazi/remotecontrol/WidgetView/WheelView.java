@@ -1,6 +1,7 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,6 +40,9 @@ public class WheelView extends WidgetView {
         LayoutParams lp = new LayoutParams(widget.getWidthInPx(context), widget.getHeightInPx(context));
         v.setLayoutParams(lp);
 
+        v.setBackgroundColor(Color.BLUE);
+
+        addView(v);
     }
 
     @Override

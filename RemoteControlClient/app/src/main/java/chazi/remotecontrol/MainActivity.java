@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bundle.putParcelable("panel",panel);
 
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this,PanelActivity.class);
+                intent.setClass(MainActivity.this,PanelListActivity.class);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }

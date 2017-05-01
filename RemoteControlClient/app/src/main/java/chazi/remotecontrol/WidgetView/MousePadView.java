@@ -29,16 +29,9 @@ public class MousePadView extends WidgetView{
     private TextView pad;
     private LinearLayout btn_ll;
     private Button btn_left, btn_right;
-    private ImageView spliter;
-    private float initX, initY, disX, disY;
 
-    private float dX,dY;
     private float baseDistance;
     private int baseWidth,baseHeight;
-
-    private boolean mouseMoved;
-    private int moveFingerId;
-
 
     public MousePadView(Context context, Widget widget) {
         super(context,widget);
@@ -86,7 +79,7 @@ public class MousePadView extends WidgetView{
         lp_left.setMargins(0, 0, 0, 0);
         btn_right.setLayoutParams(lp_right);
 
-        spliter = new ImageView(context);
+        ImageView spliter = new ImageView(context);
         int spliter_width = DensityUtil.dip2px(context,10);
         LinearLayout.LayoutParams lp_s = new LinearLayout.LayoutParams(spliter_width,btn_height);
         spliter.setLayoutParams(lp_s);
