@@ -1,7 +1,5 @@
 package chazi.remotecontrol.utils;
 
-import android.support.v4.app.ListFragment;
-
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -240,13 +238,13 @@ public class ContentCreator {
             default:
                 content += "mouse";
         }
-
         //大于零则为左键，否则右键
         if (flag >= 0) {
             content += "~left";
         } else {
             content += "~right";
         }
+
 
         return content;
     }
@@ -328,11 +326,16 @@ public class ContentCreator {
         switch (flag) {
             case 0:
                 content += "key~" + keyName;
+                break;
             case 1:
-                content += "keyUp~" + keyName;
-            case -1:
                 content += "keyDown~" + keyName;
+                break;
+            case -1:
+                content += "keyUp~" + keyName;
+                break;
             default:
+                content += "key~" + keyName;
+                break;
         }
 
         return content;

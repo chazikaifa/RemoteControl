@@ -11,6 +11,7 @@ import io.realm.Realm;
 import io.realm.Sort;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.Collections;
 
@@ -21,11 +22,13 @@ import static chazi.remotecontrol.utils.Global.config;
  */
 
 public class RealmDb {
-    public static Realm realm = null;
+    public static Realm realm;
 
     //=======================================================Widget================================================================================
 
     public static void saveWidgets(List<Widget> widgets,String panelId){
+        Log.i("Realm","save widgets in "+panelId);
+
         deleteWidgetsByPanelId(panelId);
 
         realm.beginTransaction();
@@ -34,12 +37,16 @@ public class RealmDb {
     }
 
     public static void addWidgets(List<Widget> widgets){
+        Log.i("Realm","add widgets");
+
         realm.beginTransaction();
         realm.copyToRealm(widgets);
         realm.commitTransaction();
     }
 
     public static void deleteWidgetsByPanelId(String panelId){
+        Log.i("Realm","delete widgets in "+panelId);
+
         realm.beginTransaction();
         realm.where(Widget.class).equalTo("panelId",panelId).findAll().deleteAllFromRealm();
         realm.commitTransaction();
@@ -50,6 +57,8 @@ public class RealmDb {
     }
 
     public static void  copyWidgetToPanel(Widget widget,String id){
+        Log.i("Realm","copy widgets to "+id);
+
         Widget newWidget = new Widget(widget);
         newWidget.setPanelId(id);
 
@@ -70,7 +79,7 @@ public class RealmDb {
                 Widget widget = new Widget();
                 widget.setPanelId("0");
                 widget.setName(key);
-                widget.setContent("key-"+key);
+                widget.setContent(ContentCreator.key(ContentCreator.KEY_CLICK,key));
                 widget.setType(1);
 
                 defaultKeys.add(widget);
@@ -85,18 +94,24 @@ public class RealmDb {
     //========================================================Panel==============================================================================
 
     public static void savePanel(Panel panel){
+        Log.i("Realm","savePanel");
+
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(panel);
         realm.commitTransaction();
     }
 
     public static void savePanels(List<Panel> panels){
+        Log.i("Realm","savePanels");
+
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(panels);
         realm.commitTransaction();
     }
 
     public static void deletePanelById(String id){
+        Log.i("Realm","deletePanels"+id);
+
         deleteWidgetsByPanelId(id);
 
         realm.beginTransaction();
@@ -112,11 +127,13 @@ public class RealmDb {
     }
 
     //获取测试数据
-    public static List<Panel> getTestPanels(){
+    public static void getTestPanels(){
 
         List<Panel> panels = realm.where(Panel.class).contains("id","test").findAll();
 
         if(panels.isEmpty()) {
+
+            Log.i("getTest","newTest");
 
             panels = new ArrayList<>();
 
@@ -138,7 +155,7 @@ public class RealmDb {
             panels.add(panel6);
             panels.add(panel7);
 
-            realm.copyToRealm(panels);
+            realm.copyToRealmOrUpdate(panels);
 
             //按键
             Widget widget = new Widget(panel1.getId());
@@ -172,7 +189,7 @@ public class RealmDb {
             widget.setWidth(50);
             widget.setHeight(200);
             widget.setName("滚轮");
-            widget.setContent("sen~1");
+            widget.setContent("sen~50");
 
             realm.copyToRealm(widget);
 
@@ -207,16 +224,14 @@ public class RealmDb {
             widget.setY(300);
             widget.setWidth(100);
             widget.setHeight(50);
-            widget.setName("呼叫任务管理器");
+            widget.setName("下一首");
 
             String content = "";
             content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_CTRL,content);
-            content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_ALT,content);
-            content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_DELETE,content);
+            content = ContentCreator.key(ContentCreator.KEY_PRESS,ContentCreator.KEY_RIGHT,content);
 
+            content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_RIGHT,content);
             content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_CTRL,content);
-            content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_ALT,content);
-            content = ContentCreator.key(ContentCreator.KEY_RELEASE,ContentCreator.KEY_DELETE,content);
 
             widget.setContent(content);
 
@@ -227,8 +242,8 @@ public class RealmDb {
             widget.setType(7);
             widget.setX(300);
             widget.setY(300);
-            widget.setWidth(100);
-            widget.setHeight(100);
+            widget.setWidth(200);
+            widget.setHeight(200);
             widget.setName("摇杆");
             widget.setContent("");
 
@@ -236,8 +251,6 @@ public class RealmDb {
 
             realm.commitTransaction();
         }
-
-        return panels;
     }
     //========================================================IP==================================================================================
 
@@ -283,6 +296,8 @@ public class RealmDb {
         if(getWidgetsByPanelId("0").size() == 0){
             refreshDefaultKeys();
         }
+
+        getTestPanels();
     }
 
     /**

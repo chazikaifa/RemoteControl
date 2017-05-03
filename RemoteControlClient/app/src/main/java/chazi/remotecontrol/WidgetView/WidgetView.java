@@ -6,9 +6,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.Global;
+import io.realm.Realm;
 
 import static java.lang.Math.abs;
 
@@ -24,14 +26,14 @@ public class WidgetView extends RelativeLayout {
     protected String[] contents = new String[0];
     protected Context context;
 
-    protected float initX,initY,disX,disY;
+    protected float initX, initY, disX, disY;
     protected boolean mouseMoved;
 
     //根据widget的类型，生成不同的视图
-    public static WidgetView Creator(Context context,Widget widget){
+    public static WidgetView Creator(Context context, Widget widget) {
 
         WidgetView v = null;
-        switch (widget.getType()){
+        switch (widget.getType()) {
             case 1:
                 v = new ButtonView(context, widget);
                 break;
@@ -59,15 +61,17 @@ public class WidgetView extends RelativeLayout {
         return v;
     }
 
-    public WidgetView(Context context){
+    public WidgetView(Context context) {
         super(context);
     }
 
-    public WidgetView(Context context,Widget widget) {
+    public WidgetView(Context context, Widget widget) {
         super(context);
         this.context = context;
-        this.widget = widget;
+        this.widget = new Widget(widget);
+//        this.widget = widget;
     }
+
 
     @Override
     protected void onAttachedToWindow() {
@@ -79,7 +83,7 @@ public class WidgetView extends RelativeLayout {
         setOnTouchListener(listener);
     }
 
-    private OnTouchListener listener = new OnTouchListener() {
+    protected OnTouchListener listener = new OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
 
@@ -110,39 +114,39 @@ public class WidgetView extends RelativeLayout {
                 }
 
             } else {
-                if (isFocus) {
-                    switch (action) {
-                        case MotionEvent.ACTION_DOWN:
-                            onEditDown(motionEvent);
-                            break;
-                        case MotionEvent.ACTION_POINTER_DOWN:
-                            onEditPointerDown(motionEvent);
-                            break;
+//                if (isFocus) {
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        onEditDown(motionEvent);
+                        break;
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        onEditPointerDown(motionEvent);
+                        break;
 
-                        case MotionEvent.ACTION_POINTER_UP:
-                            onEditPointerUp(motionEvent);
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            onEditMove(motionEvent);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            onEditUp(motionEvent);
-                            break;
-                    }
+                    case MotionEvent.ACTION_POINTER_UP:
+                        onEditPointerUp(motionEvent);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        onEditMove(motionEvent);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        onEditUp(motionEvent);
+                        break;
                 }
+//                }
             }
 
             return true;
         }
     };
 
-    protected void onDown(MotionEvent motionEvent){
+    protected void onDown(MotionEvent motionEvent) {
         initX = motionEvent.getX(0);
         initY = motionEvent.getY(0);
         mouseMoved = false;
     }
 
-    protected void onMove(MotionEvent motionEvent){
+    protected void onMove(MotionEvent motionEvent) {
         disX = motionEvent.getX(0) - initX;
         disY = motionEvent.getY(0) - initY;
         initX = motionEvent.getX(0);
@@ -154,25 +158,25 @@ public class WidgetView extends RelativeLayout {
         }
     }
 
-    protected void onUp(MotionEvent motionEvent){
+    protected void onUp(MotionEvent motionEvent) {
         if (!mouseMoved) {
             onClick(motionEvent);
         }
     }
 
-    protected void onPointerDown(MotionEvent motionEvent){
+    protected void onPointerDown(MotionEvent motionEvent) {
 
     }
 
-    protected void onPointerUp(MotionEvent motionEvent){
+    protected void onPointerUp(MotionEvent motionEvent) {
 
     }
 
-    protected void onClick(MotionEvent motionEvent){
+    protected void onClick(MotionEvent motionEvent) {
 
     }
 
-    protected void onEditDown(MotionEvent motionEvent){
+    protected void onEditDown(MotionEvent motionEvent) {
         initX = motionEvent.getRawX();
         initY = motionEvent.getRawY();
 
@@ -180,33 +184,33 @@ public class WidgetView extends RelativeLayout {
         disY = initY - getY();
     }
 
-    protected void onEditMove(MotionEvent motionEvent){
+    protected void onEditMove(MotionEvent motionEvent) {
         initX = motionEvent.getRawX();
         initY = motionEvent.getRawY();
 
-        Log.i("move","X="+initX+"   Y="+initY);
+        Log.i("move", "X=" + initX + "   Y=" + initY);
 
         setX(initX - disX);
         setY(initY - disY);
     }
 
-    protected void onEditUp(MotionEvent motionEvent){
+    protected void onEditUp(MotionEvent motionEvent) {
         widget.setX(getX());
         widget.setY(getY());
     }
 
-    protected void onEditPointerDown(MotionEvent motionEvent){
+    protected void onEditPointerDown(MotionEvent motionEvent) {
 
     }
 
-    protected void onEditPointerUp(MotionEvent motionEvent){
+    protected void onEditPointerUp(MotionEvent motionEvent) {
 
     }
 
-    public void setContent(String name,String value){
-        for(int i = 0;i<contents.length-1;i++){
-            if(contents[i].equals(name)){
-                contents[i+1] = value;
+    public void setContent(String name, String value) {
+        for (int i = 0; i < contents.length - 1; i++) {
+            if (contents[i].equals(name)) {
+                contents[i + 1] = value;
                 break;
             }
         }
@@ -230,7 +234,7 @@ public class WidgetView extends RelativeLayout {
     }
 
     public void setWidget(Widget widget) {
-        this.widget = widget;
+        this.widget = new Widget(widget);
     }
 
     public boolean isEdit() {

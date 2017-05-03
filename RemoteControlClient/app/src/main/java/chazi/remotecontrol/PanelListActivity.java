@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +17,18 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import chazi.remotecontrol.WidgetView.PanelListAdapter;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
 
@@ -32,29 +38,29 @@ import chazi.remotecontrol.entity.Panel;
 
 public class PanelListActivity extends Activity implements AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener{
 
-    private List<Panel> panelList;
+    private List<Panel> panelList = new ArrayList<>();
     private ListView panelListView;
     private PanelListAdapter adapter;
     private ImageView btn_back,btn_edit;
-    private TextView title;
+    private TextView title,btn_new_panel,btn_delete_panels,btn_export_panels;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        RealmDb.initRealm(getApplicationContext());
 
         setContentView(R.layout.activity_panel_list);
 
         btn_back = (ImageView) findViewById(R.id.btn_back);
         btn_edit = (ImageView) findViewById(R.id.btn_edit);
         title = (TextView) findViewById(R.id.title);
-
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-
         btn_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,10 +68,35 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
             }
         });
 
-        panelListView = (ListView) findViewById(R.id.panel_list_view);
+        btn_new_panel = (TextView) findViewById(R.id.new_panel);
+        btn_delete_panels = (TextView) findViewById(R.id.delete_panel);
+        btn_export_panels = (TextView) findViewById(R.id.export_panel);
 
-//        panelList = RealmDb.getAllPanels();
-        panelList = RealmDb.getTestPanels();
+        btn_new_panel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NewPanelDialog newPanelDialog = new NewPanelDialog(PanelListActivity.this);
+                newPanelDialog.show();
+            }
+        });
+
+        btn_delete_panels.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(),"删除选中面板！",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn_export_panels.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(),"导出选中面板！",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        panelListView = (ListView) findViewById(R.id.panel_list_view);
+        panelList.addAll(RealmDb.getAllPanels());
+//        panelList.addAll(RealmDb.getTestPanels());
         adapter = new PanelListAdapter(getApplicationContext(),R.layout.item_panel,panelList);
 
         panelListView.setAdapter(adapter);
@@ -85,90 +116,10 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        PanelDialog panelDialog = new PanelDialog(getApplicationContext(),position);
+        PanelDialog panelDialog = new PanelDialog(PanelListActivity.this,position);
         panelDialog.show();
 
         return false;
-    }
-
-    //列表的适配器
-    private class PanelListAdapter extends ArrayAdapter<Panel>{
-
-        private Context context;
-        private int res;
-        private List<Panel> panelList;
-        private boolean isEdit;
-
-        PanelListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<Panel> objects) {
-            super(context, resource, objects);
-
-            this.context = context;
-            res = resource;
-            panelList = objects;
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            final Panel panel = getItem(position);
-            ViewHolder viewHolder;
-            View view;
-
-            if (convertView == null){
-                view = LayoutInflater.from(context).inflate(res,null);
-                viewHolder = new ViewHolder();
-
-                viewHolder.name = (TextView) view.findViewById(R.id.panel_name);
-                viewHolder.btn_select = (ImageView) view.findViewById(R.id.btn_select);
-
-                view.setTag(viewHolder);
-            }
-            else{
-                view = convertView;
-                viewHolder = (ViewHolder) view.getTag();
-            }
-
-            viewHolder.name.setText(panel.getName()+"");
-            if(isEdit){
-                viewHolder.btn_select.setVisibility(View.VISIBLE);
-
-                if(panel.isSelect()){
-                    viewHolder.btn_select.setBackgroundColor(Color.GREEN);
-//                    viewHolder.btn_select.setImageResource();
-                }else {
-                    viewHolder.btn_select.setBackgroundColor(Color.GRAY);
-                }
-
-                viewHolder.btn_select.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        panel.setSelect(!panel.isSelect());
-                        notifyDataSetChanged();
-                    }
-                });
-
-
-            }else {
-                viewHolder.btn_select.setVisibility(View.GONE);
-            }
-
-            return view;
-        }
-
-        private void changeEdit(){
-            isEdit = !isEdit;
-            if(!isEdit){
-                for(Panel panel:panelList){
-                    panel.setSelect(false);
-                }
-            }
-            notifyDataSetChanged();
-        }
-
-        class ViewHolder {
-            TextView name;
-            ImageView btn_select;
-        }
     }
 
     //长按弹出选项
@@ -226,7 +177,12 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         Toast.makeText(context,"复制面板",Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.delete:
-                        Toast.makeText(context,"删除面板",Toast.LENGTH_SHORT).show();
+                        RealmDb.deletePanelById(panelList.get(position).getId());
+
+                        panelList.remove(position);
+
+                        adapter.notifyDataSetChanged();
+//                        Toast.makeText(context,"删除面板",Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.export:
                         Toast.makeText(context,"导出面板",Toast.LENGTH_SHORT).show();
@@ -235,5 +191,68 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 dismiss();
             }
         };
+    }
+
+    //新建面板弹窗
+    private class NewPanelDialog extends Dialog{
+
+        Context context;
+        EditText panel_name;
+        Switch is_vertical;
+        Button btn_confirm,btn_cancel;
+
+        public NewPanelDialog(@NonNull Context context) {
+            super(context);
+
+            this.context = context;
+
+            init();
+        }
+
+        void init(){
+            //没有标题
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setContentView(R.layout.dialog_new_panel);
+
+            //点击外部销毁
+            setCanceledOnTouchOutside(true);
+
+            //宽度为屏幕的宽度
+            int width = getWindow().getWindowManager().getDefaultDisplay().getWidth();
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.width = width;
+            getWindow().setAttributes(lp);
+
+            panel_name = (EditText) findViewById(R.id.panel_name);
+            is_vertical = (Switch) findViewById(R.id.is_vertical);
+            btn_confirm = (Button) findViewById(R.id.btn_confirm);
+            btn_cancel = (Button) findViewById(R.id.btn_cancel);
+
+            is_vertical.setChecked(true);
+
+            btn_confirm.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.i("confirm",is_vertical.isChecked()+"");
+
+                    Panel panel = new Panel();
+                    panel.setName(panel_name.getText().toString());
+                    panel.setVertical(is_vertical.isChecked());
+                    RealmDb.savePanel(panel);
+                    panelList.clear();
+                    panelList.addAll(RealmDb.getAllPanels());
+                    adapter.notifyDataSetChanged();
+
+                    dismiss();
+                }
+            });
+
+            btn_cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+        }
     }
 }

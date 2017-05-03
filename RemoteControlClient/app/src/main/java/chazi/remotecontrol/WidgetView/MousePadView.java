@@ -24,22 +24,65 @@ import static java.lang.Math.abs;
  * Created by 595056078 on 2017/4/22.
  */
 
-public class MousePadView extends WidgetView{
+public class MousePadView extends WidgetView {
 
     private TextView pad;
     private LinearLayout btn_ll;
     private Button btn_left, btn_right;
 
     private float baseDistance;
-    private int baseWidth,baseHeight;
+    private int baseWidth, baseHeight;
 
     public MousePadView(Context context, Widget widget) {
-        super(context,widget);
+        super(context, widget);
 
         pad = new TextView(context);
         btn_ll = new LinearLayout(context);
         btn_left = new Button(context);
         btn_right = new Button(context);
+
+        btn_left.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_BUTTON_PRESS:
+                    case MotionEvent.ACTION_DOWN:
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_LEFT));
+                        break;
+                    case MotionEvent.ACTION_BUTTON_RELEASE:
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_HOVER_EXIT:
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_LEFT));
+                        break;
+                }
+
+                return false;
+            }
+        });
+
+        btn_right.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_BUTTON_PRESS:
+                    case MotionEvent.ACTION_DOWN:
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_RIGHT));
+                        break;
+                    case MotionEvent.ACTION_BUTTON_RELEASE:
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_HOVER_EXIT:
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_RIGHT));
+                        break;
+                }
+
+
+                return false;
+            }
+        });
     }
 
     public Widget getWidget() {
@@ -58,14 +101,16 @@ public class MousePadView extends WidgetView{
         pad.setWidth(widget.getWidthInPx(context));
         pad.setHeight(widget.getHeightInPx(context));
         pad.setBackgroundColor(0xff0099cc);
-        //pad.setOnTouchListener(this);
+        pad.setOnTouchListener(listener);
+
+        setOnTouchListener(null);
 
         addView(pad);
 
         btn_ll.setOrientation(LinearLayout.HORIZONTAL);
 
         LayoutParams ll_lp = new LayoutParams(DensityUtil.dip2px(context, widget.getWidth()), ViewGroup.LayoutParams.WRAP_CONTENT);
-        ll_lp.addRule(RelativeLayout.BELOW,pad.getId());
+        ll_lp.addRule(RelativeLayout.BELOW, pad.getId());
         btn_ll.setLayoutParams(ll_lp);
 
         int btn_width = (int) (0.5 * DensityUtil.dip2px(context, widget.getWidth() - 5));
@@ -80,8 +125,8 @@ public class MousePadView extends WidgetView{
         btn_right.setLayoutParams(lp_right);
 
         ImageView spliter = new ImageView(context);
-        int spliter_width = DensityUtil.dip2px(context,10);
-        LinearLayout.LayoutParams lp_s = new LinearLayout.LayoutParams(spliter_width,btn_height);
+        int spliter_width = DensityUtil.dip2px(context, 10);
+        LinearLayout.LayoutParams lp_s = new LinearLayout.LayoutParams(spliter_width, btn_height);
         spliter.setLayoutParams(lp_s);
         spliter.setBackgroundColor(Color.BLACK);
 
@@ -96,7 +141,7 @@ public class MousePadView extends WidgetView{
         super.onMove(motionEvent);
 
         if (disX != 0 || disY != 0) {
-            Connect.SendMessage(ContentCreator.move(disX,disY));
+            Connect.SendMessage(ContentCreator.move(disX, disY));
         }
     }
 
@@ -147,15 +192,15 @@ public class MousePadView extends WidgetView{
 //        widget.setWidthInPx(pad.getWidth(),context);
     }
 
-    public void scaleView(float scale){
-        pad.setHeight((int) (baseHeight*scale));
-        pad.setWidth((int) (baseWidth*scale));
+    public void scaleView(float scale) {
+        pad.setHeight((int) (baseHeight * scale));
+        pad.setWidth((int) (baseWidth * scale));
 
-        if(pad.getHeight()<=200){
+        if (pad.getHeight() <= 200) {
             pad.setHeight(200);
         }
 
-        if(pad.getWidth()<=200){
+        if (pad.getWidth() <= 200) {
             pad.setWidth(200);
         }
 
@@ -167,7 +212,7 @@ public class MousePadView extends WidgetView{
         lp_left.width = (int) (base_btn_width * scale);
         lp_right.width = (int) (base_btn_width * scale);
 
-        if(lp_left.width <= 95){
+        if (lp_left.width <= 95) {
             lp_left.width = 95;
             lp_right.width = 95;
         }

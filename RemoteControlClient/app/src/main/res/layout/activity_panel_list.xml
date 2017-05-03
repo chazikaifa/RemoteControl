@@ -1,47 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/tab_rl"
-        android:background="#0FA0A0"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="50dp"
+        android:background="#0FA0A0">
 
         <ImageView
             android:id="@+id/btn_back"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:scaleType="fitCenter"
             android:layout_marginLeft="20dp"
-            android:src="#0F0ABA"/>
+            android:scaleType="fitCenter"
+            android:src="#0F0ABA" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textColor="#FFFFFF"
-            android:gravity="center"
-            android:layout_toRightOf="@+id/btn_back"
             android:layout_marginLeft="20dp"
-            android:textSize="20sp"
-            android:text="选择面板"/>
+            android:layout_toRightOf="@+id/btn_back"
+            android:gravity="center"
+            android:text="选择面板"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/btn_edit"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:scaleType="fitCenter"
-            android:layout_marginRight="20dp"
             android:layout_alignParentRight="true"
-            android:src="#0F0ABA"/>
+            android:layout_marginRight="20dp"
+            android:scaleType="fitCenter"
+            android:src="#0F0ABA" />
     </RelativeLayout>
 
     <ListView
         android:id="@+id/panel_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tab_rl"
+        android:layout_marginBottom="50dp">
 
     </ListView>
-</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_ll"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#DBDBDB"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/new_panel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="添加新面板"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/delete_panel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="删除面板"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/export_panel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="导出面板"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</RelativeLayout>

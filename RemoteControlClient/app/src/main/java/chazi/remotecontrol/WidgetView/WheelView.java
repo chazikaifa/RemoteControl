@@ -16,7 +16,7 @@ import chazi.remotecontrol.utils.ContentCreator;
 
 public class WheelView extends WidgetView {
 
-    private int sensitivity = 1;
+    private int sensitivity = 10;
     private ImageView v;
 
     public WheelView(Context context, Widget widget) {
@@ -48,9 +48,11 @@ public class WheelView extends WidgetView {
     @Override
     protected void onMove(MotionEvent motionEvent) {
         disY = motionEvent.getY(0) - initY;
+        disX = motionEvent.getX(0) - initX;
 
-        if (disY > widget.getHeightInPx(context) / 6) {
-            initX = motionEvent.getY(0);
+        if (Math.abs(disY) > widget.getHeightInPx(context) / 6) {
+            initY = motionEvent.getY(0);
+            initX = motionEvent.getX(0);
 
             int symbol;
             if (disY > 0) {

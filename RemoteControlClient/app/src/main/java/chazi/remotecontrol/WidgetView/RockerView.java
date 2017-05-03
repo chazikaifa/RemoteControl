@@ -24,10 +24,10 @@ public class RockerView extends WidgetView {
 
     private MyView v;
 
-    private final double TAN_M_675 = Math.tan(-67.5);
-    private final double TAN_M_225 = Math.tan(-22.5);
-    private final double TAN_225 = Math.tan(22.5);
-    private final double TAN_675 = Math.tan(67.5);
+    private final double TAN_M_675 = Math.tan(-3*Math.PI/8);
+    private final double TAN_M_225 = Math.tan(-Math.PI/8);
+    private final double TAN_225 = Math.tan(Math.PI/8);
+    private final double TAN_675 = Math.tan(3*Math.PI/8);
 
     private String[] keys = new String[]{ContentCreator.KEY_W, ContentCreator.KEY_S, ContentCreator.KEY_A, ContentCreator.KEY_D};
 
@@ -36,6 +36,11 @@ public class RockerView extends WidgetView {
 
     public RockerView(Context context, Widget widget) {
         super(context, widget);
+
+//        Log.i("tan(-67.5)",TAN_M_675+"");
+//        Log.i("tan(-22.5)",TAN_M_225+"");
+//        Log.i("tan(22.5)",TAN_225+"");
+//        Log.i("tan(67.5)",TAN_675+"");
 
         //算出圆心
         padRadius = widget.getWidthInPx(context) / 2.0f;
@@ -113,7 +118,7 @@ public class RockerView extends WidgetView {
         lastPosition = position;
         position = new boolean[]{false, false, false, false};
 
-        float r = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(x, 2));
+        float r = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 
         if (r > rockerRadius) {
 
@@ -124,30 +129,32 @@ public class RockerView extends WidgetView {
                     position[0] = true;
                 }
             } else {
-                double ratio = y / x;
+                //若直接使用比值，当x接近0的时候，ratio的绝对值将非常大，产生溢出，摇杆上和下将非常不灵
+                //double ratio = y / x;
+
                 if (x > 0) {
-                    if (ratio < TAN_M_675) {
-                        position[1] = true;
-                    } else if (ratio < TAN_M_225) {
-                        position[1] = true;
-                        position[3] = true;
-                    } else if (ratio < TAN_225) {
-                        position[3] = true;
-                    } else if (ratio < TAN_675) {
-                        position[3] = true;
+                    if (y < TAN_M_675 * x) {
+                        position[0] = true;
+                    } else if (y < TAN_M_225 * x) {
+                            position[0] = true;
+                            position[3] = true;
+                        } else if (y < TAN_225 * x) {
+                            position[3] = true;
+                        } else if (y < TAN_675 * x) {
+                            position[3] = true;
                         position[1] = true;
                     } else {
                         position[1] = true;
                     }
                 } else {
-                    if (ratio < TAN_M_675) {
+                    if (y > TAN_M_675 * x) {
                         position[1] = true;
-                    } else if (ratio < TAN_M_225) {
+                    } else if (y > TAN_M_225 * x) {
                         position[1] = true;
                         position[2] = true;
-                    } else if (ratio < TAN_225) {
+                    } else if (y > TAN_225 * x) {
                         position[2] = true;
-                    } else if (ratio < TAN_675) {
+                    } else if (y > TAN_675 * x) {
                         position[2] = true;
                         position[0] = true;
                     } else {
@@ -163,8 +170,8 @@ public class RockerView extends WidgetView {
     private void sendPosition() {
         String message = "";
         for (int i = 0; i < 4; i++) {
-            if (lastPosition[i] && !position[i]) {
-                message = ContentCreator.key(ContentCreator.KEY_RELEASE, keys[i], message);
+            if (!lastPosition[i] && position[i]) {
+                message = ContentCreator.key(ContentCreator.KEY_PRESS, keys[i], message);
             }
         }
 
@@ -175,10 +182,16 @@ public class RockerView extends WidgetView {
         message = "";
 
         for (int i = 0; i < 4; i++) {
-            if (!lastPosition[i] && position[i]) {
-                message = ContentCreator.key(ContentCreator.KEY_PRESS, keys[i], message);
+            if (lastPosition[i] && !position[i]) {
+                message = ContentCreator.key(ContentCreator.KEY_RELEASE, keys[i], message);
             }
         }
+
+//        for(int i = 0;i<4;i++){
+//            if(position[i]){
+//                message = ContentCreator.key(ContentCreator.KEY_CLICK,keys[i],message);
+//            }
+//        }
 
         if (!message.equals("")) {
             Connect.SendMessage(message);

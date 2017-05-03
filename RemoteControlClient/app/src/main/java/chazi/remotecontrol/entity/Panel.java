@@ -35,7 +35,10 @@ public class Panel extends RealmObject implements Parcelable{
     private boolean isSelect = false;
 
     public Panel(){
-
+        this("","",100);
+        String uid = UUID.randomUUID().toString();
+        setName("新建面板"+uid);
+        setId(uid);
     }
 
     public Panel(String name){

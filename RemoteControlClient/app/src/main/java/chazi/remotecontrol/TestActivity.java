@@ -36,6 +36,9 @@ public class TestActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test);
+
+        RealmDb.initRealm(getApplicationContext());
+
         addDb = (Button) findViewById(R.id.addDB);
         readDb = (Button) findViewById(R.id.readDB);
         delDb = (Button) findViewById(R.id.deleteDB);

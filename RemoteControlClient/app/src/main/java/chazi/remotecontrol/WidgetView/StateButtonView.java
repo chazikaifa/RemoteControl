@@ -1,6 +1,8 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +33,8 @@ public class StateButtonView extends WidgetView {
                 break;
             }
         }
+
+        btn.setClickable(false);
     }
 
     @Override
@@ -42,6 +46,10 @@ public class StateButtonView extends WidgetView {
         btn.setWidth(widget.getWidthInPx(context));
         btn.setHeight(widget.getHeightInPx(context));
 
+        btn.setText(widget.getName());
+        btn.setTextColor(Color.WHITE);
+        btn.setTextSize(20);
+
         addView(btn);
     }
 
@@ -49,10 +57,12 @@ public class StateButtonView extends WidgetView {
     protected void onUp(MotionEvent motionEvent) {
         super.onUp(motionEvent);
 
+        Log.i("stateButton","isPress = "+isPress+"   op = "+operation);
+
         if(isPress) {
             Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
         }else {
-            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
+            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_PRESS,operation));
         }
     }
 
@@ -63,5 +73,25 @@ public class StateButtonView extends WidgetView {
 
     public String getOperation(){
         return operation;
+    }
+
+    @Override
+    public void setWidget(Widget widget) {
+        super.setWidget(widget);
+
+        setX(widget.getX());
+        setY(widget.getY());
+        btn.setWidth(widget.getWidthInPx(context));
+        btn.setHeight(widget.getHeightInPx(context));
+
+        btn.setText(widget.getName());
+
+        contents = widget.getContent().split("~");
+        for(int i = 0;i<contents.length-1;i++){
+            if(contents[i].equals("key")){
+                operation = contents[i+1];
+                break;
+            }
+        }
     }
 }

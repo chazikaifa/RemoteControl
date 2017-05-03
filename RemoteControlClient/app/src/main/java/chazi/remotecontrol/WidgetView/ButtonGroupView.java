@@ -1,6 +1,8 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Button;
 
@@ -21,6 +23,8 @@ public class ButtonGroupView extends WidgetView {
         super(context, widget);
 
         btn = new Button(context);
+
+        btn.setClickable(false);
     }
 
     @Override
@@ -32,6 +36,10 @@ public class ButtonGroupView extends WidgetView {
         btn.setWidth(widget.getWidthInPx(context));
         btn.setHeight(widget.getHeightInPx(context));
 
+        btn.setText(widget.getName());
+        btn.setTextColor(Color.WHITE);
+        btn.setTextSize(20);
+
         addView(btn);
     }
 
@@ -39,11 +47,25 @@ public class ButtonGroupView extends WidgetView {
     protected void onUp(MotionEvent motionEvent) {
         super.onUp(motionEvent);
 
+        Log.i("ButtonGroup",widget.getContent());
+
         Connect.SendMessage(widget.getContent());
     }
 
     public void setOperation(String op){
         operation = op;
         widget.setContent(op);
+    }
+
+    @Override
+    public void setWidget(Widget widget) {
+        super.setWidget(widget);
+
+        setX(widget.getX());
+        setY(widget.getY());
+        btn.setWidth(widget.getWidthInPx(context));
+        btn.setHeight(widget.getHeightInPx(context));
+
+        btn.setText(widget.getName());
     }
 }

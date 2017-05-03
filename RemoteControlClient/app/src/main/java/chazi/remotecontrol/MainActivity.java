@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -172,13 +173,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        String s = String.valueOf((char)event.getUnicodeChar());
+
+        if(event.getUnicodeChar()!=0)
+            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_PRESS,s));
+
+        return super.onKeyUp(keyCode, event);
+    }
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
 
         String s = String.valueOf((char)event.getUnicodeChar());
 
         if(event.getUnicodeChar()!=0)
-            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_CLICK,s));
-//            Connect.SendMessage("key~"+event.getUnicodeChar());
+            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,s));
 
         return super.onKeyUp(keyCode, event);
     }

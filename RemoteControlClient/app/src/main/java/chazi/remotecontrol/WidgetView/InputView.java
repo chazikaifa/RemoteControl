@@ -53,10 +53,8 @@ public class InputView extends WidgetView {
         lp_send.setMargins(0,margin,0,margin);
         btn_send.setLayoutParams(lp_send);
 
-        if (!isEdit()) {
-            input.addTextChangedListener(watcher);
-            btn_send.setOnClickListener(listener);
-        }
+        input.addTextChangedListener(watcher);
+        btn_send.setOnClickListener(listener);
 
         addView(input);
         addView(btn_send);
@@ -106,11 +104,15 @@ public class InputView extends WidgetView {
         super.setEdit(edit);
 
         if (!isEdit()) {
-            input.addTextChangedListener(watcher);
-            btn_send.setOnClickListener(listener);
+            input.setClickable(true);
+            input.setEnabled(true);
+            input.setVisibility(VISIBLE);
+            btn_send.setClickable(true);
         } else {
-            input.addTextChangedListener(null);
-            btn_send.setOnClickListener(null);
+            input.setClickable(false);
+            input.setEnabled(false);
+            input.setVisibility(INVISIBLE);
+            btn_send.setClickable(false);
         }
     }
 }
