@@ -14,9 +14,9 @@
             android:id="@+id/btn_back"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="20dp"
+            android:layout_margin="10dp"
             android:scaleType="fitCenter"
-            android:src="#0F0ABA" />
+            android:src="@drawable/back" />
 
         <TextView
             android:id="@+id/title"
@@ -34,9 +34,9 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="20dp"
+            android:layout_margin="10dp"
             android:scaleType="fitCenter"
-            android:src="#0F0ABA" />
+            android:src="@drawable/person_normal" />
     </RelativeLayout>
 
     <ListView

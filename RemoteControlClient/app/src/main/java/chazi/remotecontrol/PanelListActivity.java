@@ -4,19 +4,14 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,7 +23,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import chazi.remotecontrol.WidgetView.PanelListAdapter;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
 
@@ -43,6 +37,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
     private PanelListAdapter adapter;
     private ImageView btn_back,btn_edit;
     private TextView title,btn_new_panel,btn_delete_panels,btn_export_panels;
+    private boolean isEdit = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +59,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
         btn_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isEdit = !isEdit;
                 adapter.changeEdit();
             }
         });
@@ -106,12 +102,17 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent();
-        intent.setClass(PanelListActivity.this,PanelActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("panel",panelList.get(position));
-        intent.putExtras(bundle);
-        startActivity(intent);
+        if(!isEdit) {
+            Intent intent = new Intent();
+            intent.setClass(PanelListActivity.this, PanelActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("panel", panelList.get(position));
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }else {
+            panelList.get(position).setSelect(!panelList.get(position).isSelect());
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override

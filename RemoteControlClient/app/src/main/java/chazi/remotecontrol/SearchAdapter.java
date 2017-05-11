@@ -1,4 +1,4 @@
-package chazi.remotecontrol.WidgetView;
+package chazi.remotecontrol;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;

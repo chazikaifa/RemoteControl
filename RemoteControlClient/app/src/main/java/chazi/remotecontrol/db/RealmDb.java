@@ -265,14 +265,15 @@ public class RealmDb {
         //先找出ip和port相同的IP,(讲道理应该最多一个)
         List<IP> sameIP = realm.where(IP.class).equalTo("ipAdr",ip.getIpAdr()).equalTo("port",ip.getPort()).findAll();
 
+        for (IP sIP:sameIP){
+            deleteIP(sIP);
+        }
+
         realm.beginTransaction();
         //如果长度大于0，则表示已经有相同的了,将该IP提前显示，其他顺序不变
         //为了做到这个，把原来的IP删掉，重新存入一条
         //否则直接存入
         //在下次查询之后将List<IP>倒序显示即可
-        if(sameIP.size() > 0){
-            realm.where(IP.class).equalTo("ipAdr",ip.getIpAdr()).equalTo("port",ip.getPort()).findAll().deleteAllFromRealm();
-        }
         realm.copyToRealm(ip);
         realm.commitTransaction();
     }

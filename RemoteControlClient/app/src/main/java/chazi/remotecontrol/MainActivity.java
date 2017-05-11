@@ -1,49 +1,112 @@
 package chazi.remotecontrol;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v7.app.AlertDialog;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.AttributeSet;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import chazi.remotecontrol.db.RealmDb;
-import chazi.remotecontrol.entity.Panel;
+import chazi.remotecontrol.entity.IP;
 import chazi.remotecontrol.utils.Connect;
-import chazi.remotecontrol.utils.ContentCreator;
 import chazi.remotecontrol.utils.Global;
-import chazi.remotecontrol.utils.RsSharedUtil;
 
 import static java.lang.Math.abs;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, KeyEvent.Callback{
+public class MainActivity extends AppCompatActivity implements KeyEvent.Callback,AdapterView.OnItemClickListener{
 
-    Button playPauseButton;
-    Button testButton,btn_left,btn_right,view_test;
-    TextView mousePad;
+    private RelativeLayout container;
+    private EditText ip_input,port_input;
+    private Button btn_link;
+    private ImageView btn_show_hide;
+    private TextView btn_offline;
+    private ListView ipListView;
+    private IPListAdapter adapter;
+    private boolean isConnecting = false;
 
-    private boolean mouseMoved=false;
-    public RelativeLayout relativeLayout;
+    private List<IP> IPList,matchList = new ArrayList<>();
 
-    private float initX =0;
-    private float initY =0;
-    private float disX =0;
-    private float disY =0;
+    private boolean jumpWait = true;
+    private Connect.ConnectPhoneTask connectPhoneTask;
+    private Connect.MCallback mCallback = new Connect.MCallback() {
+        @Override
+        public void onConnectSuccess() {
+            Toast.makeText(getApplicationContext(),"连接成功！",Toast.LENGTH_SHORT).show();
+
+            final Intent intent = new Intent();
+            intent.setClass(MainActivity.this, PanelListActivity.class);
+
+            //若等待时间不足一秒则一秒后再跳转
+            if(jumpWait) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(intent);
+                    }
+                },1000);
+            }else {
+                startActivity(intent);
+            }
+        }
+
+        @Override
+        public void onConnectFail() {
+            Toast.makeText(getApplicationContext(),"连接失败，请检查ip与端口号,并确认处于同一局域网！",Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onSendSuccess() {
+
+        }
+
+        @Override
+        public void onNoConnect() {
+
+        }
+
+        @Override
+        public void onErrorCreatingIO() {
+            Toast.makeText(getApplicationContext(),"创建输入输出流失败！",Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onSaveIP(IP nIP) {
+            RealmDb.saveIP(nIP);
+        }
+
+        @Override
+        public void onFinish() {
+            ip_input.setEnabled(true);
+            port_input.setEnabled(true);
+
+            btn_link.setText("连接");
+            isConnecting = false;
+
+            connectPhoneTask = null;
+        }
+    };
+    private Connect.ConnectHandler handler = new Connect.ConnectHandler(mCallback);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,268 +116,176 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RealmDb.initRealm(getApplicationContext());
 
         Global.context = getApplicationContext();
-        playPauseButton = (Button)findViewById(R.id.playPauseButton);
 
-        view_test = (Button) findViewById(R.id.view_test);
-        view_test.setOnClickListener(new View.OnClickListener() {
+        container=(RelativeLayout)findViewById(R.id.container);
+
+        ip_input = (EditText) findViewById(R.id.ip_input);
+        port_input = (EditText) findViewById(R.id.port_input);
+        btn_show_hide = (ImageView) findViewById(R.id.show_hide_list);
+        btn_link = (Button) findViewById(R.id.btn_link);
+        btn_offline = (TextView) findViewById(R.id.offline_mode);
+        ipListView = (ListView) findViewById(R.id.history_list);
+
+        container.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Panel panel = new Panel("1","面板1",0,true);
-
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("panel",panel);
-
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this,PanelListActivity.class);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
-
-        testButton = (Button) findViewById(R.id.toTest);
-        testButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this,TestActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        btn_left = (Button) findViewById(R.id.left_click);
-        btn_right = (Button) findViewById(R.id.right_click);
-
-        btn_left.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                int action = motionEvent.getAction();
-
-                switch (action){
-                    case MotionEvent.ACTION_BUTTON_PRESS:
-                    case MotionEvent.ACTION_DOWN:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_LEFT));
-                        break;
-                    case MotionEvent.ACTION_BUTTON_RELEASE:
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_HOVER_EXIT:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_LEFT));
-                        break;
+            public void onClick(View v) {
+                if(ipListView.getVisibility() == View.VISIBLE){
+                    hideList();
                 }
-
-                return false;
             }
         });
 
-        btn_right.setOnTouchListener(new View.OnTouchListener() {
+        btn_show_hide.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                int action = motionEvent.getAction();
-
-                switch (action){
-                    case MotionEvent.ACTION_BUTTON_PRESS:
-                    case MotionEvent.ACTION_DOWN:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_RIGHT));
-                        break;
-                    case MotionEvent.ACTION_BUTTON_RELEASE:
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_HOVER_EXIT:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_RIGHT));
-                        break;
-                }
-
-                return false;
-            }
-        });
-
-        relativeLayout=(RelativeLayout)findViewById(R.id.activity_main);
-
-        playPauseButton.setOnClickListener(this);
-
-        mousePad = (TextView)findViewById(R.id.mousePad);
-        mousePad.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(Global.isConnected && Global.out!=null){
-                    switch(event.getAction()){
-                        case MotionEvent.ACTION_DOWN:
-                            //save X and Y positions when user touches the TextView
-                            initX =event.getX();
-                            initY =event.getY();
-                            mouseMoved=false;
-                            Log.i("Mouse","Down");
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            disX = event.getX()- initX;
-                            disY = event.getY()- initY;
-                            initX = event.getX();
-                            initY = event.getY();
-                            if(disX !=0|| disY !=0){
-                                Connect.SendMessage(ContentCreator.move(disX,disY));
-                            }
-
-                            //当移动范围小，当做点击
-                            if(abs(disX)>2 && abs(disY)>2) {
-                                mouseMoved = true;
-                            }
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            //consider a tap only if usr did not move mouse after ACTION_DOWN
-                            if(!mouseMoved){
-                                Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_CLICK_LEFT));
-                                Log.i("Mouse","Click");
-                            }
+            public void onClick(View v) {
+                if(!isConnecting) {
+                    if (ipListView.getVisibility() == View.VISIBLE) {
+                        hideList();
+                    } else {
+                        showList();
                     }
                 }
-                return true;
+            }
+        });
+
+        btn_link.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isConnecting) {
+                    String ip, sPort;
+                    int port = 4444;
+                    ip = ip_input.getText().toString();
+                    sPort = port_input.getText().toString();
+
+                    Log.i("link", "ip is " + ip + " and port is " + port);
+
+                    String[] ips = ip.split("\\.");
+                    boolean ipFlag = true;
+                    if (!(ips.length == 4)) {
+                        ipFlag = false;
+                        Log.i("judge ip", "length is " + ips.length);
+                    } else {
+                        for (String s : ips) {
+                            try {
+                                int group = Integer.valueOf(s);
+                                if (group < 0 || group > 255) {
+                                    ipFlag = false;
+                                    break;
+                                }
+                            } catch (Exception e) {
+                                Log.i("judge ip", e.toString());
+                                ipFlag = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (!ipFlag) {
+                        Toast.makeText(getApplicationContext(), "不合法的ip地址！", Toast.LENGTH_SHORT).show();
+                    } else {
+                        boolean portFlag = true;
+                        try {
+                            port = Integer.valueOf(sPort);
+                            if (port < 1024 || port > 65535) {
+                                portFlag = false;
+                            }
+                        } catch (Exception e) {
+                            Log.i("judge port", e.toString());
+                            portFlag = false;
+                        }
+                        if (!portFlag) {
+                            Toast.makeText(getApplicationContext(), "不合法的端口号！", Toast.LENGTH_SHORT).show();
+                        } else {
+                            connectPhoneTask = Connect.ConnectToServerWithCallback(ip, port, handler);
+                            btn_link.setText("取消连接");
+                            isConnecting = true;
+                            jumpWait = true;
+                            ip_input.setEnabled(false);
+                            port_input.setEnabled(false);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    jumpWait = false;
+                                }
+                            }, 1000);
+                        }
+                    }
+                }else {
+                    if(connectPhoneTask != null){
+                        connectPhoneTask.cancel(true);
+                    }
+                    btn_link.setText("连接");
+                    isConnecting = false;
+                    ip_input.setEnabled(true);
+                    port_input.setEnabled(true);
+                }
+            }
+        });
+
+        btn_offline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this,PanelListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        IPList = RealmDb.getAllIp();
+        matchList.addAll(IPList);
+        adapter = new IPListAdapter(getApplicationContext(),R.layout.item_ip,matchList);
+        ipListView.setAdapter(adapter);
+        ipListView.setOnItemClickListener(this);
+
+        ip_input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String word = s.toString();
+
+                Pattern pattern = Pattern.compile(".*" + word + ".*");
+                Matcher matcher;
+
+                adapter.clear();
+                for (IP ip : IPList) {
+                    matcher = pattern.matcher(ip.getIpAdr());
+                    if (matcher.matches()) {
+                        matchList.add(ip);
+                    }
+                }
+                if(matchList.size() == 0){
+                    hideList();
+                }else {
+                    showList();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        String s = String.valueOf((char)event.getUnicodeChar());
-
-        if(event.getUnicodeChar()!=0)
-            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_PRESS,s));
-
-        return super.onKeyUp(keyCode, event);
-    }
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-
-        String s = String.valueOf((char)event.getUnicodeChar());
-
-        if(event.getUnicodeChar()!=0)
-            Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,s));
-
-        return super.onKeyUp(keyCode, event);
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        IP ip = adapter.getItem(position);
+        ip_input.setText(ip.getIpAdr());
+        port_input.setText(ip.getPort()+"");
+        hideList();
     }
 
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.playPauseButton:
-                InputMethodManager inputMethodManager =
-                        (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputMethodManager.toggleSoftInputFromWindow(
-                        relativeLayout.getApplicationWindowToken(),
-                        InputMethodManager.SHOW_FORCED, 0);
-                break;
-        }
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
+    private void showList(){
+        btn_show_hide.setImageResource(R.drawable.ic_arrow_up);
+        ipListView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if(id == R.id.action_connect) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-            alertDialog.setTitle("Enter Server IP Address");
-            //alertDialog.setMessage("Enter Server IP address");
-
-            final EditText input = new EditText(MainActivity.this);
-            String serverIP= RsSharedUtil.getString(getApplicationContext(),"server_ip");
-            input.setText(serverIP);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
-            input.setLayoutParams(lp);
-            lp.setMargins(100,100,100,100);
-            alertDialog.setView(input);
-            alertDialog.setIcon(R.drawable.ic_cast_white_24dp);
-
-            alertDialog.setPositiveButton("YES",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            String server_ip = input.getText().toString();
-                            Connect.ConnectToServer(server_ip);
-                        }
-                    });
-
-            alertDialog.setNegativeButton("NO",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-            alertDialog.show();
-
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    private void hideList(){
+        btn_show_hide.setImageResource(R.drawable.ic_arrow_down);
+        ipListView.setVisibility(View.GONE);
     }
-
-//    public class SendMessage extends AsyncTask<String,Void,Void>{
-//        @Override
-//        protected Void doInBackground(String... params) {
-//            if(out != null) {
-//                out.println(params[0]);
-//            }else {
-//                Toast.makeText(getApplicationContext(),"没有连接！",Toast.LENGTH_SHORT).show();
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void aVoid) {
-//            Log.d("SendMessage","message sent");
-//        }
-//    }
-//
-//    public class ConnectPhoneTask extends AsyncTask<String,Void,Boolean> {
-//
-//        private final String TAG = this.getClass().getSimpleName();
-//
-//        @Override
-//        protected Boolean doInBackground(String... params) {
-//            boolean result = true;
-//            try {
-//                InetAddress serverAddr = InetAddress.getByName(params[0]);
-//
-//                socket = new Socket(serverAddr, Global.SERVER_PORT);//Open socket on server IP and port
-//                //socket = new Socket(Global.SERVER_IP, Global.SERVER_PORT);//Open socket on server IP and port
-//            } catch (IOException e) {
-//                Log.e(TAG, "Error while connecting", e);
-//                result = false;
-//            }
-//            if(result){
-//                SharedPreferences.Editor editor=getSharedPreferences("remote",MODE_PRIVATE).edit();
-//                editor.putString("server_ip",params[0]);
-//                editor.apply();
-//            }
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Boolean result)
-//        {
-//            isConnected = result;
-//            Toast.makeText(context,isConnected?"Connected to server!":"Error while connecting", Toast.LENGTH_LONG).show();
-//            try {
-//                if(isConnected) {
-//                    out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket
-//                            .getOutputStream())), true); //create output stream to send data to server
-//                }
-//            }catch (IOException e){
-//                Log.e(TAG, "Error while creating OutWriter", e);
-//                Toast.makeText(context,"Error while connecting",Toast.LENGTH_LONG).show();
-//            }
-//        }
-//    }
 }

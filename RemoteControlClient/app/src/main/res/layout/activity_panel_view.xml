@@ -14,8 +14,8 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:scaleType="fitCenter"
-            android:layout_marginLeft="20dp"
-            android:src="#0F0ABA"/>
+            android:layout_margin="10dp"
+            android:src="@drawable/back"/>
 
         <TextView
             android:id="@+id/title"
@@ -33,9 +33,9 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:scaleType="fitCenter"
-            android:layout_marginRight="20dp"
+            android:layout_margin="10dp"
             android:layout_alignParentRight="true"
-            android:src="#0F0ABA"/>
+            android:src="@drawable/delete_icon"/>
     </RelativeLayout>
 
     <RelativeLayout

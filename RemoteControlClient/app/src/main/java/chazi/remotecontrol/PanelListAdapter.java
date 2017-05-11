@@ -1,4 +1,4 @@
-package chazi.remotecontrol.WidgetView;
+package chazi.remotecontrol;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -43,29 +43,29 @@ public class PanelListAdapter extends ArrayAdapter<Panel> {
         ViewHolder viewHolder;
         View view;
 
-        if (convertView == null){
-            view = LayoutInflater.from(context).inflate(res,null);
+        if (convertView == null) {
+            view = LayoutInflater.from(context).inflate(res, null);
             viewHolder = new ViewHolder();
 
             viewHolder.name = (TextView) view.findViewById(R.id.panel_name);
             viewHolder.btn_select = (ImageView) view.findViewById(R.id.btn_select);
 
             view.setTag(viewHolder);
-        }
-        else{
+        } else {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
 
-        viewHolder.name.setText(panel.getName()+"");
-        if(isEdit){
+        viewHolder.name.setText(panel.getName() + "");
+        if (isEdit) {
             viewHolder.btn_select.setVisibility(View.VISIBLE);
 
-            if(panel.isSelect()){
-                viewHolder.btn_select.setBackgroundColor(Color.GREEN);
-//                    viewHolder.btn_select.setImageResource();
-            }else {
-                viewHolder.btn_select.setBackgroundColor(Color.GRAY);
+            if (panel.isSelect()) {
+//                viewHolder.btn_select.setBackgroundColor(Color.GREEN);
+                viewHolder.btn_select.setImageResource(R.drawable.btn_check_on_holo_light);
+            } else {
+//                viewHolder.btn_select.setBackgroundColor(Color.GRAY);
+                viewHolder.btn_select.setImageResource(R.drawable.btn_check_off_holo_light);
             }
 
             viewHolder.btn_select.setOnClickListener(new View.OnClickListener() {
@@ -77,17 +77,17 @@ public class PanelListAdapter extends ArrayAdapter<Panel> {
             });
 
 
-        }else {
+        } else {
             viewHolder.btn_select.setVisibility(View.GONE);
         }
 
         return view;
     }
 
-    public void changeEdit(){
+    public void changeEdit() {
         isEdit = !isEdit;
-        if(!isEdit){
-            for(Panel panel:panelList){
+        if (!isEdit) {
+            for (Panel panel : panelList) {
                 panel.setSelect(false);
             }
         }
