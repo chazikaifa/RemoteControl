@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
@@ -72,6 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/port_input"
+            android:elevation="5dp"
             android:layout_marginTop="50dp"
             android:background="@drawable/blue_button_selector"
             android:text="连接"
@@ -83,7 +85,7 @@
             android:layout_height="match_parent"
             android:layout_below="@id/ip_input"
             android:background="@color/line_grey"
-            android:elevation="5dp"
+            android:elevation="10dp"
             android:visibility="gone">
 
 

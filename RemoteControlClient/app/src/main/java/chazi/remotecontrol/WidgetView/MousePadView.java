@@ -149,7 +149,7 @@ public class MousePadView extends WidgetView {
     protected void onClick(MotionEvent motionEvent) {
         super.onClick(motionEvent);
 
-        Connect.SendMessage(Global.MOUSE_LEFT_CLICK);
+        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_CLICK_LEFT));
     }
 
     @Override

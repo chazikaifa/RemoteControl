@@ -8,7 +8,8 @@
         android:id="@+id/tab_rl"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#0FA0A0">
+        android:elevation="5dp"
+        android:background="@color/colorPrimary">
 
         <ImageView
             android:id="@+id/btn_back"
@@ -36,7 +37,7 @@
             android:layout_alignParentRight="true"
             android:layout_margin="10dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/person_normal" />
+            android:src="@drawable/edit_normal" />
     </RelativeLayout>
 
     <ListView

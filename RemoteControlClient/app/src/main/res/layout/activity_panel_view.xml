@@ -5,7 +5,7 @@
 
     <RelativeLayout
         android:id="@+id/tab_rl"
-        android:background="#0FA0A0"
+        android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="50dp">
 
@@ -35,7 +35,7 @@
             android:scaleType="fitCenter"
             android:layout_margin="10dp"
             android:layout_alignParentRight="true"
-            android:src="@drawable/delete_icon"/>
+            android:src="@drawable/edit_normal"/>
     </RelativeLayout>
 
     <RelativeLayout

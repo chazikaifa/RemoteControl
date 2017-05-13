@@ -61,10 +61,8 @@ public class PanelListAdapter extends ArrayAdapter<Panel> {
             viewHolder.btn_select.setVisibility(View.VISIBLE);
 
             if (panel.isSelect()) {
-//                viewHolder.btn_select.setBackgroundColor(Color.GREEN);
                 viewHolder.btn_select.setImageResource(R.drawable.btn_check_on_holo_light);
             } else {
-//                viewHolder.btn_select.setBackgroundColor(Color.GRAY);
                 viewHolder.btn_select.setImageResource(R.drawable.btn_check_off_holo_light);
             }
 
@@ -84,8 +82,8 @@ public class PanelListAdapter extends ArrayAdapter<Panel> {
         return view;
     }
 
-    public void changeEdit() {
-        isEdit = !isEdit;
+    public void setEdit(boolean edit) {
+        isEdit = edit;
         if (!isEdit) {
             for (Panel panel : panelList) {
                 panel.setSelect(false);

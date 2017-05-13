@@ -25,5 +25,5 @@ public class Global {
     public static Context context;
     public static boolean isConnected = false;
 
-    public static final String MOUSE_LEFT_CLICK="mouse~left";
+    public static final String FilePlace = "RemoteControl";
 }
