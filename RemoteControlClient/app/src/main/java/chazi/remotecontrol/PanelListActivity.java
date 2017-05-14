@@ -5,10 +5,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +35,7 @@ import java.util.List;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
 import chazi.remotecontrol.utils.FileUtil;
+import chazi.remotecontrol.utils.Global;
 
 /**
  * Created by 595056078 on 2017/5/1.
@@ -37,12 +43,34 @@ import chazi.remotecontrol.utils.FileUtil;
 
 public class PanelListActivity extends Activity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
+    public static final int IMPORT_COMPLETE = 0;
+    public static final int IMPORT_FAIL = 1;
+
     private List<Panel> panelList = new ArrayList<>();
     private ListView panelListView;
     private PanelListAdapter adapter;
     private ImageView btn_back, btn_edit;
-    private TextView title, btn_new_panel, btn_delete_panels, btn_export_panels;
+    private TextView title, btn_new_panel, btn_delete_panels, btn_export_panels, btn_import_panels;
     private boolean isEdit = false;
+    private final int REQUEST_FILE = 0;
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case IMPORT_COMPLETE:
+                    adapter.clear();
+                    adapter.addAll(RealmDb.getAllPanels());
+                    adapter.notifyDataSetChanged();
+
+                    Toast.makeText(getApplicationContext(), "导入完成！", Toast.LENGTH_SHORT).show();
+                    break;
+                case IMPORT_FAIL:
+                    Toast.makeText(getApplicationContext(), "文件解析失败！", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +84,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
         btn_edit = (ImageView) findViewById(R.id.btn_edit);
         title = (TextView) findViewById(R.id.title);
         btn_new_panel = (TextView) findViewById(R.id.new_panel);
+        btn_import_panels = (TextView) findViewById(R.id.import_panel);
         btn_delete_panels = (TextView) findViewById(R.id.delete_panel);
         btn_export_panels = (TextView) findViewById(R.id.export_panel);
         panelListView = (ListView) findViewById(R.id.panel_list_view);
@@ -73,13 +102,15 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 isEdit = !isEdit;
                 adapter.setEdit(isEdit);
 
-                if(isEdit){
+                if (isEdit) {
                     btn_new_panel.setVisibility(View.GONE);
+                    btn_import_panels.setVisibility(View.GONE);
                     btn_delete_panels.setVisibility(View.VISIBLE);
                     btn_export_panels.setVisibility(View.VISIBLE);
                     btn_edit.setImageResource(R.drawable.edit_selected);
-                }else {
+                } else {
                     btn_new_panel.setVisibility(View.VISIBLE);
+                    btn_import_panels.setVisibility(View.VISIBLE);
                     btn_delete_panels.setVisibility(View.GONE);
                     btn_export_panels.setVisibility(View.GONE);
                     btn_edit.setImageResource(R.drawable.edit_normal);
@@ -96,6 +127,31 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
             }
         });
 
+        btn_import_panels.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(PanelListActivity.this)
+                        .setTitle("导入面板")
+                        .setMessage("请先将面板数据文件放在SD卡中！")
+                        .setPositiveButton("继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                startActivityForResult(intent, REQUEST_FILE);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+            }
+        });
+
         btn_delete_panels.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,9 +162,9 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         .setPositiveButton("是", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                for(int i = 0;i<panelList.size();i++){
+                                for (int i = 0; i < panelList.size(); i++) {
                                     Panel p = panelList.get(i);
-                                    if(p.isSelect()){
+                                    if (p.isSelect()) {
                                         RealmDb.deletePanelById(p.getId());
                                         panelList.remove(i);
                                         //删除之后i需减一保持一致
@@ -120,6 +176,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                                 adapter.notifyDataSetChanged();
 
                                 btn_new_panel.setVisibility(View.VISIBLE);
+                                btn_import_panels.setVisibility(View.VISIBLE);
                                 btn_delete_panels.setVisibility(View.GONE);
                                 btn_export_panels.setVisibility(View.GONE);
                                 btn_edit.setImageResource(R.drawable.edit_normal);
@@ -147,10 +204,10 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         .setPositiveButton("是", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                for(int i = 0;i<panelList.size();i++){
+                                for (int i = 0; i < panelList.size(); i++) {
                                     Panel p = panelList.get(i);
-                                    if(p.isSelect()){
-                                        FileUtil.savePanelIntoSDCard(PanelListActivity.this,p);
+                                    if (p.isSelect()) {
+                                        FileUtil.savePanelIntoSDCard(PanelListActivity.this, p);
                                     }
                                 }
                                 isEdit = false;
@@ -256,10 +313,10 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 int id = v.getId();
                 switch (id) {
                     case R.id.edit:
-                        new NewPanelDialog(context,panel).show();
+                        new NewPanelDialog(context, panel).show();
                         break;
                     case R.id.copy:
-                        Panel p = new Panel(panel,false);
+                        Panel p = new Panel(panel, false);
 
                         RealmDb.savePanel(p);
                         panelList.add(p);
@@ -273,16 +330,47 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         panelList.remove(position);
 
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(context,"面板删除成功！",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "面板删除成功！", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.export:
-                        FileUtil.savePanelIntoSDCard(PanelListActivity.this,panel);
+                        FileUtil.savePanelIntoSDCard(PanelListActivity.this, panel);
 //                        Toast.makeText(context, "已导出面板"+panel.getName(), Toast.LENGTH_SHORT).show();
                         break;
                 }
                 dismiss();
             }
         };
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            if (requestCode == REQUEST_FILE && resultCode == Activity.RESULT_OK) {//是否选择，没选择就不会继续
+                Uri uri = data.getData();//得到uri，后面就是将uri转化成file的过程。
+
+                String path = uri.getPath().split(":")[1];
+                File dir = Environment.getExternalStorageDirectory();
+                path = dir.getPath() + "/" + path;
+
+                Log.i("result", path);
+
+                File file = new File(path);
+
+                int status = FileUtil.readPanelFromSDCard(PanelListActivity.this, file, handler);
+                if (status == FileUtil.STATUS_OK) {
+                    adapter.clear();
+                    adapter.addAll(RealmDb.getAllPanels());
+                    adapter.notifyDataSetChanged();
+
+                    Toast.makeText(getApplicationContext(), "导入完成！", Toast.LENGTH_SHORT).show();
+                } else if(status == FileUtil.STATUS_FAIL){
+                    Toast.makeText(getApplicationContext(), "不是面板数据文件或文件已损坏！", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (Exception e) {
+            Log.i("result", e.toString());
+        }
+
     }
 
     //新建面板弹窗
@@ -305,11 +393,11 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
             setTitle("创建新面板");
         }
 
-        public NewPanelDialog(Context context,Panel p){
+        public NewPanelDialog(Context context, Panel p) {
             super(context);
 
             this.context = context;
-            panel = new Panel(p,true);
+            panel = new Panel(p, true);
 
             init();
 
@@ -342,7 +430,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 @Override
                 public void onClick(View v) {
 
-                    if(!panel_name.getText().toString().equals("")) {
+                    if (!panel_name.getText().toString().equals("")) {
                         String log = "修改";
                         if (panel == null) {
                             panel = new Panel();
@@ -358,8 +446,8 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         Toast.makeText(context, log + "面板成功！", Toast.LENGTH_SHORT).show();
 
                         dismiss();
-                    }else {
-                        Toast.makeText(context,"请输入面板名称!",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "请输入面板名称!", Toast.LENGTH_SHORT).show();
                     }
 
                 }

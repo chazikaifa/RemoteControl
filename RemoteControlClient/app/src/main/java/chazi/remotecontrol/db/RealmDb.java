@@ -93,6 +93,11 @@ public class RealmDb {
 
     //========================================================Panel==============================================================================
 
+    public static boolean isPanelExist(String id){
+        List<Panel> panels = realm.where(Panel.class).equalTo("id",id).findAll();
+        return panels.size() > 0;
+    }
+
     public static void savePanel(Panel panel){
         Log.i("Realm","savePanel");
 
