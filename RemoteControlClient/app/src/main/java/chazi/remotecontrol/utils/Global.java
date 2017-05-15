@@ -1,6 +1,8 @@
 package chazi.remotecontrol.utils;
 
 import android.content.Context;
+
+import java.io.BufferedReader;
 import java.net.Socket;
 import java.io.PrintWriter;
 
@@ -19,9 +21,9 @@ public class Global {
 
     public static Socket socket;
     public static PrintWriter out;
+    public static BufferedReader in;
     public static Context context;
     public static boolean isConnected = false;
 
-    public static final String PLAY="play";
-    public static final String MOUSE_LEFT_CLICK="left_click";
+    public static final String FilePlace = "RemoteControl";
 }

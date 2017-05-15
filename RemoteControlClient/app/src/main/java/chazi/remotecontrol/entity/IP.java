@@ -11,11 +11,11 @@ public class IP extends RealmObject {
     private int port;
 
     public IP(){
-        new IP("192.168.199.125",9999);
+        this("192.168.199.131",4444);
     }
 
     public IP(String ipAdr){
-        new IP(ipAdr,9999);
+        this(ipAdr,4444);
     }
 
     public IP(String ipAdr, int port) {
