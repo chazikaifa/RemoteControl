@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,10 @@ import chazi.remotecontrol.entity.Widget;
 
 public class EditWidgetActivity extends Activity implements AdapterView.OnItemClickListener{
 
+    public static final int STATUS_OK = 0;
+    public static final int STATUS_CANCEL = 1;
+    public static final int STATUS_DELETE = 2;
+
     private int index;
     private EditText name_et,content_et;
     private ListView searchListView;
@@ -34,7 +40,8 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
     private List<Widget> searchList = new ArrayList<>();
     private SearchAdapter adapter;
     private String word,name,content;
-    private Button btn_confirm,btn_cancel;
+    private TextView btn_confirm;
+    private ImageView btn_back,btn_delete;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,14 +49,43 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
 
         RealmDb.initRealm(getApplicationContext());
 
-        index = getIntent().getExtras().getInt("index");
+        Bundle bundle = getIntent().getExtras();
+        index = bundle.getInt("index");
+        name = bundle.getString("name");
+        content = bundle.getString("content");
 
         setContentView(R.layout.activity_edit_widget);
 
         defaultWidgetList = RealmDb.getWidgetsByPanelId("0");
 
+        btn_back = (ImageView) findViewById(R.id.btn_back);
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("index",index);
+                setResult(STATUS_CANCEL,intent);
+                finish();
+            }
+        });
+        btn_back.setOnTouchListener(new MyOnTouchListener(EditWidgetActivity.this,R.drawable.back_normal,R.drawable.back_selected));
+
+        btn_delete = (ImageView) findViewById(R.id.btn_delete);
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("index",index);
+                setResult(STATUS_DELETE,intent);
+                finish();
+            }
+        });
+        btn_delete.setOnTouchListener(new MyOnTouchListener(EditWidgetActivity.this,R.drawable.delete_normal,R.drawable.delete_selected));
+
         name_et = (EditText) findViewById(R.id.widget_name);
+        name_et.setText(name);
         content_et = (EditText) findViewById(R.id.btn_content);
+        content_et.setText(content);
 
         content_et.addTextChangedListener(new TextWatcher() {
             @Override
@@ -91,8 +127,6 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
                         } else {
                             searchListView.setVisibility(View.VISIBLE);
                             adapter.notifyDataSetChanged();
-//                            adapter = new SearchAdapter(getApplicationContext(),R.layout.item_widget_search,searchList);
-//                            searchListView.setAdapter(adapter);
                         }
                     }
                 }catch (Exception e){
@@ -107,7 +141,7 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
         searchListView.setAdapter(adapter);
         searchListView.setOnItemClickListener(this);
 
-        btn_confirm = (Button) findViewById(R.id.btn_confirm);
+        btn_confirm = (TextView) findViewById(R.id.btn_confirm);
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,21 +157,11 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
 
                 bundle.putInt("index",index);
                 intent.putExtras(bundle);
-                setResult(0,intent);
+                setResult(STATUS_OK,intent);
                 finish();
             }
         });
-
-        btn_cancel = (Button) findViewById(R.id.btn_cancel);
-        btn_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.putExtra("index",index);
-                setResult(1,intent);
-                finish();
-            }
-        });
+        btn_confirm.setOnTouchListener(new MyOnTouchListener(EditWidgetActivity.this));
     }
 
     @Override
@@ -150,7 +174,7 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
     public void onBackPressed() {
         Intent intent = new Intent();
         intent.putExtra("index",index);
-        setResult(1,intent);
+        setResult(STATUS_CANCEL,intent);
         finish();
     }
 }

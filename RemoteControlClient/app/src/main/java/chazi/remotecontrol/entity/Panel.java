@@ -44,11 +44,12 @@ public class Panel extends RealmObject implements Parcelable{
     public Panel(Panel p,boolean copyIdFlag){
         if(copyIdFlag) {
             id = p.getId();
+            name = p.getName();
         }else {
             id= UUID.randomUUID().toString();
+            name = p.getName()+"_副本";
         }
 
-        name = p.getName()+"_副本";
         order = p.getOrder();
         vertical = p.isVertical();
     }

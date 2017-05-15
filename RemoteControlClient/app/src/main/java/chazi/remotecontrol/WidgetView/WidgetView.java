@@ -1,16 +1,13 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Widget;
-import chazi.remotecontrol.utils.Connect;
-import chazi.remotecontrol.utils.Global;
-import io.realm.Realm;
 
 import static java.lang.Math.abs;
 
@@ -25,9 +22,9 @@ public class WidgetView extends RelativeLayout {
     protected boolean isFocus = false;
     protected String[] contents = new String[0];
     protected Context context;
-
-    protected float initX, initY, disX, disY;
+    protected float initX, initY, disX, disY,dX,dY;
     protected boolean mouseMoved;
+    protected Thread longClickThread,editLongClickThread;
 
     //根据widget的类型，生成不同的视图
     public static WidgetView Creator(Context context, Widget widget) {
@@ -69,7 +66,6 @@ public class WidgetView extends RelativeLayout {
         super(context);
         this.context = context;
         this.widget = new Widget(widget);
-//        this.widget = widget;
     }
 
 
@@ -95,7 +91,6 @@ public class WidgetView extends RelativeLayout {
                     case MotionEvent.ACTION_DOWN:
                         onDown(motionEvent);
                         break;
-
                     case MotionEvent.ACTION_POINTER_DOWN:
                         onPointerDown(motionEvent);
                         break;
@@ -144,6 +139,9 @@ public class WidgetView extends RelativeLayout {
         initX = motionEvent.getX(0);
         initY = motionEvent.getY(0);
         mouseMoved = false;
+
+        longClickThread = new LongClickThread(false);
+        longClickThread.start();
     }
 
     protected void onMove(MotionEvent motionEvent) {
@@ -152,20 +150,22 @@ public class WidgetView extends RelativeLayout {
         initX = motionEvent.getX(0);
         initY = motionEvent.getY(0);
 
-        //当移动范围小，当做点击
+        //当移动范围小，当做点击,取消长按
         if (abs(disX) > 2 && abs(disY) > 2) {
             mouseMoved = true;
+            longClickThread.interrupt();
         }
     }
 
     protected void onUp(MotionEvent motionEvent) {
+        longClickThread.interrupt();
         if (!mouseMoved) {
             onClick(motionEvent);
         }
     }
 
     protected void onPointerDown(MotionEvent motionEvent) {
-
+        longClickThread.interrupt();
     }
 
     protected void onPointerUp(MotionEvent motionEvent) {
@@ -180,32 +180,66 @@ public class WidgetView extends RelativeLayout {
         initX = motionEvent.getRawX();
         initY = motionEvent.getRawY();
 
-        disX = initX - getX();
-        disY = initY - getY();
+        dX = initX - getX();
+        dY = initY - getY();
+
+        editLongClickThread = new LongClickThread(true);
+        editLongClickThread.start();
     }
 
     protected void onEditMove(MotionEvent motionEvent) {
+        disX = motionEvent.getRawX() - initX;
+        disY = motionEvent.getRawY() - initY;
+
         initX = motionEvent.getRawX();
         initY = motionEvent.getRawY();
+        //当移动范围小，当做点击,取消长按
+        if (abs(disX) > 2 && abs(disY) > 2) {
+            editLongClickThread.interrupt();
+        }
 
         Log.i("move", "X=" + initX + "   Y=" + initY);
 
-        setX(initX - disX);
-        setY(initY - disY);
+        setX(initX - dX);
+        setY(initY - dY);
+
     }
 
     protected void onEditUp(MotionEvent motionEvent) {
         widget.setX(getX());
         widget.setY(getY());
+
+        editLongClickThread.interrupt();
     }
 
     protected void onEditPointerDown(MotionEvent motionEvent) {
-
+        editLongClickThread.interrupt();
     }
 
     protected void onEditPointerUp(MotionEvent motionEvent) {
 
     }
+
+    public interface OnLongClickListener{
+        void onLongClick();
+    }
+    public interface OnEditLongClickListener{
+        void onEditLongClick();
+    }
+
+    protected OnLongClickListener onLongClick = new OnLongClickListener() {
+        @Override
+        public void onLongClick() {
+
+        }
+    };
+
+    protected OnEditLongClickListener onEditLongClick = new OnEditLongClickListener() {
+        @Override
+        public void onEditLongClick() {
+
+        }
+    };
 
     public void setContent(String name, String value) {
         for (int i = 0; i < contents.length - 1; i++) {
@@ -251,5 +285,37 @@ public class WidgetView extends RelativeLayout {
 
     public void setFocus(boolean focus) {
         isFocus = focus;
+    }
+
+    public void setOnLongClickListener(OnLongClickListener listener){
+        onLongClick = listener;
+    }
+
+    public void setOnEditLongClickListener(OnEditLongClickListener listener){
+        onEditLongClick = listener;
+    }
+
+    private class LongClickThread extends Thread{
+        private boolean isEdit;
+
+        private LongClickThread(boolean isEdit) {
+            this.isEdit = isEdit;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(1000);
+                if(!isInterrupted()){
+                    if(isEdit()){
+                        onEditLongClick.onEditLongClick();
+                    }else {
+                        onLongClick.onLongClick();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

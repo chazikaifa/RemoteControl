@@ -4,18 +4,18 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:id="@+id/tab_rl"
+        android:id="@+id/title_rl"
         android:background="@color/colorPrimary"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="@dimen/title_height">
 
         <ImageView
             android:id="@+id/btn_back"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/btn_back_padding"
             android:scaleType="fitCenter"
-            android:layout_margin="10dp"
-            android:src="@drawable/back"/>
+            android:src="@drawable/back_normal" />
 
         <TextView
             android:id="@+id/title"
@@ -30,17 +30,18 @@
 
         <ImageView
             android:id="@+id/btn_edit"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="fitCenter"
-            android:layout_margin="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:src="@drawable/edit_normal"/>
+            android:padding="@dimen/btn_edit_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/edit_normal" />
+
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/panelView"
-        android:layout_below="@+id/tab_rl"
+        android:layout_below="@+id/title_rl"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -49,22 +50,36 @@
     <LinearLayout
         android:id="@+id/menu_ll"
         android:elevation="5dp"
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:visibility="invisible">
+        android:layout_height="@dimen/menu_height"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
 
-        <TextView
+        <LinearLayout
             android:id="@+id/new_widget"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
+            android:layout_margin="1dp"
             android:background="@color/colorPrimary"
             android:gravity="center"
-            android:text="添加新控件"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp" />
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/new_normal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="添加新控件"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/panel_list_menu_font_size" />
+        </LinearLayout>
 
     </LinearLayout>
 

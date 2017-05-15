@@ -1,6 +1,7 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.MotionEvent;

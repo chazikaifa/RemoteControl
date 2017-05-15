@@ -6,14 +6,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -35,7 +34,6 @@ import java.util.List;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
 import chazi.remotecontrol.utils.FileUtil;
-import chazi.remotecontrol.utils.Global;
 
 /**
  * Created by 595056078 on 2017/5/1.
@@ -50,7 +48,8 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
     private ListView panelListView;
     private PanelListAdapter adapter;
     private ImageView btn_back, btn_edit;
-    private TextView title, btn_new_panel, btn_delete_panels, btn_export_panels, btn_import_panels;
+    private TextView title;
+    private LinearLayout btn_new_panel, btn_delete_panels, btn_export_panels, btn_import_panels;
     private boolean isEdit = false;
     private final int REQUEST_FILE = 0;
 
@@ -83,10 +82,10 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
         btn_back = (ImageView) findViewById(R.id.btn_back);
         btn_edit = (ImageView) findViewById(R.id.btn_edit);
         title = (TextView) findViewById(R.id.title);
-        btn_new_panel = (TextView) findViewById(R.id.new_panel);
-        btn_import_panels = (TextView) findViewById(R.id.import_panel);
-        btn_delete_panels = (TextView) findViewById(R.id.delete_panel);
-        btn_export_panels = (TextView) findViewById(R.id.export_panel);
+        btn_new_panel = (LinearLayout) findViewById(R.id.new_panel);
+        btn_import_panels = (LinearLayout) findViewById(R.id.import_panel);
+        btn_delete_panels = (LinearLayout) findViewById(R.id.delete_panel);
+        btn_export_panels = (LinearLayout) findViewById(R.id.export_panel);
         panelListView = (ListView) findViewById(R.id.panel_list_view);
 
 
@@ -96,6 +95,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 finish();
             }
         });
+        btn_back.setOnTouchListener(new MyOnTouchListener(getApplicationContext(),R.drawable.back_normal,R.drawable.back_selected));
         btn_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,6 +118,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
 
             }
         });
+        btn_edit.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
 
         btn_new_panel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +127,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 newPanelDialog.show();
             }
         });
+        btn_new_panel.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
 
         btn_import_panels.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,6 +153,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         .show();
             }
         });
+        btn_import_panels.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
 
         btn_delete_panels.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,6 +196,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         .show();
             }
         });
+        btn_delete_panels.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
 
         btn_export_panels.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,7 +235,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                         .show();
             }
         });
-
+        btn_export_panels.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
 
         panelList.addAll(RealmDb.getAllPanels());
         adapter = new PanelListAdapter(getApplicationContext(), R.layout.item_panel, panelList);
