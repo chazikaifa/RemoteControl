@@ -1,9 +1,11 @@
 package chazi.remotecontrol;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -74,10 +76,26 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.putExtra("index",index);
-                setResult(STATUS_DELETE,intent);
-                finish();
+                new AlertDialog.Builder(EditWidgetActivity.this)
+                        .setTitle("删除该控件")
+                        .setMessage("确定要删除该控件吗？")
+                        .setPositiveButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent();
+                                intent.putExtra("index",index);
+                                setResult(STATUS_DELETE,intent);
+                                EditWidgetActivity.this.finish();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("否", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+
             }
         });
         btn_delete.setOnTouchListener(new MyOnTouchListener(EditWidgetActivity.this,R.drawable.delete_normal,R.drawable.delete_selected));

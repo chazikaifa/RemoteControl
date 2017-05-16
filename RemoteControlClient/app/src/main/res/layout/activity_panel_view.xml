@@ -29,9 +29,29 @@
             android:text="面板名称"/>
 
         <ImageView
+            android:id="@+id/btn_clear"
+            android:layout_width="@dimen/title_height"
+            android:layout_height="@dimen/title_height"
+            android:layout_toLeftOf="@+id/new_widget"
+            android:padding="@dimen/btn_edit_padding"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:src="@drawable/delete_normal" />
+
+        <ImageView
+            android:id="@+id/new_widget"
+            android:layout_width="@dimen/title_height"
+            android:layout_height="@dimen/title_height"
+            android:layout_toLeftOf="@id/btn_edit"
+            android:padding="@dimen/btn_edit_padding"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:src="@drawable/new_normal" />
+
+        <ImageView
             android:id="@+id/btn_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="@dimen/title_height"
+            android:layout_height="@dimen/title_height"
             android:layout_alignParentRight="true"
             android:padding="@dimen/btn_edit_padding"
             android:scaleType="fitCenter"
@@ -46,41 +66,5 @@
         android:layout_height="match_parent">
 
     </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/menu_ll"
-        android:elevation="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/menu_height"
-        android:visibility="gone"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
-
-        <LinearLayout
-            android:id="@+id/new_widget"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="1dp"
-            android:background="@color/colorPrimary"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/new_normal" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="添加新控件"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/panel_list_menu_font_size" />
-        </LinearLayout>
-
-    </LinearLayout>
 
 </RelativeLayout>

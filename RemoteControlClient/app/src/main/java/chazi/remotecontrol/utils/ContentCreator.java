@@ -91,7 +91,7 @@ public class ContentCreator {
     public static final String KEY_F11 = "f11";
     public static final String KEY_F12 = "f12";
 
-    public static final String[] KET_Fs = {
+    public static final String[] KEY_Fs = {
             KEY_F1, KEY_F2, KEY_F3,
             KEY_F4, KEY_F5, KEY_F6,
             KEY_F7, KEY_F8, KEY_F9,
@@ -201,7 +201,7 @@ public class ContentCreator {
     };
 
     public static final String[][] defaultKeys = {
-            letters, numbers, symbol_group_1, symbol_group_2, controls
+            letters, numbers, KEY_Fs,symbol_group_1, symbol_group_2, controls
     };
 
     public static String Click(int flag) {

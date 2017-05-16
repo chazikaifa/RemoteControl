@@ -95,7 +95,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                 finish();
             }
         });
-        btn_back.setOnTouchListener(new MyOnTouchListener(getApplicationContext(),R.drawable.back_normal,R.drawable.back_selected));
+        btn_back.setOnTouchListener(new MyOnTouchListener(getApplicationContext(), R.drawable.back_normal, R.drawable.back_selected));
         btn_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,25 +132,10 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
         btn_import_panels.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(PanelListActivity.this)
-                        .setTitle("导入面板")
-                        .setMessage("请先将面板数据文件放在SD卡中！")
-                        .setPositiveButton("继续", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
-                                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                startActivityForResult(intent, REQUEST_FILE);
-                            }
-                        })
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, REQUEST_FILE);
             }
         });
         btn_import_panels.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
@@ -201,38 +186,22 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
         btn_export_panels.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(PanelListActivity.this)
-                        .setTitle("批量导出")
-                        .setMessage("确认要导出选中的面板吗？")
-                        .setCancelable(true)
-                        .setPositiveButton("是", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                for (int i = 0; i < panelList.size(); i++) {
-                                    Panel p = panelList.get(i);
-                                    if (p.isSelect()) {
-                                        FileUtil.savePanelIntoSDCard(PanelListActivity.this, p);
-                                    }
-                                }
-                                isEdit = false;
-                                adapter.setEdit(isEdit);
-                                adapter.notifyDataSetChanged();
+                for (int i = 0; i < panelList.size(); i++) {
+                    Panel p = panelList.get(i);
+                    if (p.isSelect()) {
+                        FileUtil.savePanelIntoSDCard(PanelListActivity.this, p);
+                    }
+                }
+                isEdit = false;
+                adapter.setEdit(isEdit);
+                adapter.notifyDataSetChanged();
 
-                                btn_new_panel.setVisibility(View.VISIBLE);
-                                btn_delete_panels.setVisibility(View.GONE);
-                                btn_export_panels.setVisibility(View.GONE);
-                                btn_edit.setImageResource(R.drawable.edit_normal);
+                btn_new_panel.setVisibility(View.VISIBLE);
+                btn_delete_panels.setVisibility(View.GONE);
+                btn_export_panels.setVisibility(View.GONE);
+                btn_edit.setImageResource(R.drawable.edit_normal);
 
-                                Toast.makeText(getApplicationContext(), "已导出选中面板！", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setNegativeButton("否", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
+                Toast.makeText(getApplicationContext(), "已导出选中面板！", Toast.LENGTH_SHORT).show();
             }
         });
         btn_export_panels.setOnTouchListener(new MyOnTouchListener(getApplicationContext()));
@@ -367,7 +336,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
                     adapter.notifyDataSetChanged();
 
                     Toast.makeText(getApplicationContext(), "导入完成！", Toast.LENGTH_SHORT).show();
-                } else if(status == FileUtil.STATUS_FAIL){
+                } else if (status == FileUtil.STATUS_FAIL) {
                     Toast.makeText(getApplicationContext(), "不是面板数据文件或文件已损坏！", Toast.LENGTH_SHORT).show();
                 }
             }

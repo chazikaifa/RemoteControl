@@ -298,7 +298,7 @@ public class RealmDb {
         //保存数据库的config
         config = RealmDb.realm.getConfiguration();
 
-        //Widget表中panelId为-1的数据条数为0说明为新数据库，写入默认按键数据
+        //Widget表中panelId为0的数据条数为0说明为新数据库，写入默认按键数据
         if(getWidgetsByPanelId("0").size() == 0){
             refreshDefaultKeys();
         }

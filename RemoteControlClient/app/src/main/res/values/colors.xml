@@ -14,5 +14,6 @@
     <color name="light_gray">#DDDDDD</color>
     <color name="line_grey">#DBDBDB</color>
     <color name="half_transparent">#90000000</color>
+    <color name="transparent">#00000000</color>
     <color name="line_blue">#3091e7</color>
 </resources>
