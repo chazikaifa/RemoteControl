@@ -39,6 +39,11 @@
             android:src="@drawable/delete_normal" />
     </RelativeLayout>
 
+    <!--<chazi.remotecontrol.OrderListView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@id/title_rl"/>-->
+
     <RelativeLayout
         android:id="@+id/button_rl"
         android:layout_width="match_parent"

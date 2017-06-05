@@ -1,9 +1,10 @@
 package chazi.remotecontrol.utils;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.List;
+
+import chazi.remotecontrol.entity.Order;
 
 /**
  * Created by 595056078 on 2017/4/12.
@@ -12,6 +13,18 @@ import java.util.List;
  */
 
 public class ContentCreator {
+
+    public static final int ORDER_TYPE_MOUSE_MOVE = 0;
+    public static final int ORDER_TYPE_MOUSE_MOVE_ABS = 1;
+    public static final int ORDER_TYPE_MOUSE_CLICK = 2;
+    public static final int ORDER_TYPE_MOUSE_HOLD = 3;
+    public static final int ORDER_TYPE_MOUSE_RELEASE = 4;
+    public static final int ORDER_TYPE_KEY = 5;
+    public static final int ORDER_TYPE_KEY_DOWN = 6;
+    public static final int ORDER_TYPE_KEY_UP = 7;
+    public static final int ORDER_TYPE_WHEEL = 8;
+    public static final int ORDER_TYPE_STRING = 9;
+    public static final int ORDER_TYPE_DELAY = 10;
 
     public static final int MOUSE_CLICK_LEFT = 1;
     public static final int MOUSE_PRESS_LEFT = 2;
@@ -204,6 +217,112 @@ public class ContentCreator {
             letters, numbers, KEY_Fs,symbol_group_1, symbol_group_2, controls
     };
 
+    public static String generateOrderListString(List<Order> orderList){
+        String s = "";
+
+        for(Order order:orderList){
+            int type = order.getOrderType();
+            String param = order.getOrderParam();
+            String[] params = param.split(",");
+            switch (type){
+                case ORDER_TYPE_MOUSE_MOVE:
+                    s = move(Float.parseFloat(params[0]),Float.parseFloat(params[1]),s);
+                    break;
+                case ORDER_TYPE_MOUSE_MOVE_ABS:
+                    s = absMove(Float.parseFloat(params[0]),Float.parseFloat(params[1]),s);
+                    break;
+                case ORDER_TYPE_MOUSE_CLICK:
+                    if(param.equals("right")){
+                        s = Click(MOUSE_CLICK_RIGHT,s);
+                    }else {
+                        s = Click(MOUSE_CLICK_LEFT,s);
+                    }
+                    break;
+                case ORDER_TYPE_MOUSE_HOLD:
+                    if(param.equals("right")){
+                        s = Click(MOUSE_PRESS_RIGHT,s);
+                    }else {
+                        s = Click(MOUSE_PRESS_LEFT,s);
+                    }
+                    break;
+                case ORDER_TYPE_MOUSE_RELEASE:
+                    if(param.equals("right")){
+                        s = Click(MOUSE_RELEASE_RIGHT,s);
+                    }else {
+                        s = Click(MOUSE_RELEASE_LEFT,s);
+                    }
+                    break;
+                case ORDER_TYPE_KEY:
+                    s = key(KEY_CLICK,param,s);
+                    break;
+                case ORDER_TYPE_KEY_DOWN:
+                    s = key(KEY_PRESS,param,s);
+                    break;
+                case ORDER_TYPE_KEY_UP:
+                    s = key(KEY_RELEASE,param,s);
+                    break;
+                case ORDER_TYPE_WHEEL:
+                    s = wheel(Integer.parseInt(param),s);
+                    break;
+                case ORDER_TYPE_STRING:
+                    s = sendString(param,s);
+                    break;
+                case ORDER_TYPE_DELAY:
+                    s = delay(Integer.parseInt(param),s);
+                    break;
+            }
+        }
+        return s;
+    }
+
+//    public static String getOrderString(Order order){
+//        int type = order.getOrderType();
+//        String param = order.getOrderParam();
+//        String s = "";
+//        switch (type){
+//            case ORDER_TYPE_MOUSE_CLICK:
+//                if(param.equals("right")){
+//                    s = Click(MOUSE_CLICK_RIGHT);
+//                }else {
+//                    s = Click(MOUSE_CLICK_LEFT);
+//                }
+//                break;
+//            case ORDER_TYPE_MOUSE_HOLD:
+//                if(param.equals("right")){
+//                    s = Click(MOUSE_PRESS_RIGHT);
+//                }else {
+//                    s = Click(MOUSE_PRESS_LEFT);
+//                }
+//                break;
+//            case ORDER_TYPE_MOUSE_RELEASE:
+//                if(param.equals("right")){
+//                    s = Click(MOUSE_RELEASE_RIGHT);
+//                }else {
+//                    s = Click(MOUSE_RELEASE_LEFT);
+//                }
+//                break;
+//            case ORDER_TYPE_KEY:
+//                s = key(KEY_CLICK,param);
+//                break;
+//            case ORDER_TYPE_KEY_DOWN:
+//                s = key(KEY_PRESS,param);
+//                break;
+//            case ORDER_TYPE_KEY_UP:
+//                s = key(KEY_RELEASE,param);
+//                break;
+//            case ORDER_TYPE_WHEEL:
+//                s = wheel(Integer.parseInt(param));
+//                break;
+//            case ORDER_TYPE_STRING:
+//                s = sendString(param);
+//                break;
+//            case ORDER_TYPE_DELAY:
+//                s = delay(Integer.parseInt(param));
+//                break;
+//        }
+//        return s;
+//    }
+
     public static String Click(int flag) {
         return Click(flag, "");
     }
@@ -266,11 +385,11 @@ public class ContentCreator {
     }
 
     //鼠标绝对移动量
-    public static String absMove(int x, int y) {
+    public static String absMove(float x, float y) {
         return absMove(x, y, "");
     }
 
-    public static String absMove(int x, int y, String content) {
+    public static String absMove(float x, float y, String content) {
         if (!content.equals("")) {
             content += "~";
         }

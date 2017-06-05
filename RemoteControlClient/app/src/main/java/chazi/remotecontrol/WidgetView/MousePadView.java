@@ -59,48 +59,8 @@ public class MousePadView extends WidgetView {
         btn_left = new Button(context);
         btn_right = new Button(context);
 
-        btn_left.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                switch (action) {
-                    case MotionEvent.ACTION_BUTTON_PRESS:
-                    case MotionEvent.ACTION_DOWN:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_LEFT));
-                        break;
-                    case MotionEvent.ACTION_BUTTON_RELEASE:
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_HOVER_EXIT:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_LEFT));
-                        break;
-                }
-
-                return false;
-            }
-        });
-
-        btn_right.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                switch (action) {
-                    case MotionEvent.ACTION_BUTTON_PRESS:
-                    case MotionEvent.ACTION_DOWN:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_RIGHT));
-                        break;
-                    case MotionEvent.ACTION_BUTTON_RELEASE:
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_HOVER_EXIT:
-                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_RIGHT));
-                        break;
-                }
-
-
-                return false;
-            }
-        });
+        btn_left.setOnTouchListener(listener_left);
+        btn_right.setOnTouchListener(listener_right);
     }
 
     public Widget getWidget() {
@@ -160,13 +120,11 @@ public class MousePadView extends WidgetView {
         lp_left.setMargins(0, 0, 0, 0);
         btn_left.setLayoutParams(lp_left);
         btn_left.setBackgroundResource(R.drawable.round_bottom_left);
-        btn_left.setOnTouchListener(new MyOnTouchListener(context, R.drawable.round_bottom_left, R.drawable.round_bottom_left_pressed));
 
         LayoutParams lp_right = new LayoutParams(btn_width, btn_height);
         lp_left.setMargins(0, 0, 0, 0);
         btn_right.setLayoutParams(lp_right);
         btn_right.setBackgroundResource(R.drawable.round_bottom_right);
-        btn_right.setOnTouchListener(new MyOnTouchListener(context, R.drawable.round_bottom_right, R.drawable.round_bottom_right_pressed));
 
         ImageView spliter = new ImageView(context);
         int spliter_width = DensityUtil.dip2px(context, 2);
@@ -351,4 +309,58 @@ public class MousePadView extends WidgetView {
             invalidate();
         }
     }
+
+    private OnTouchListener listener_left = new OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
+            switch (action) {
+                case MotionEvent.ACTION_BUTTON_PRESS:
+                case MotionEvent.ACTION_DOWN:
+                    if(!isEdit()) {
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_LEFT));
+                    }
+                    v.setBackgroundResource(R.drawable.round_bottom_left_pressed);
+                    break;
+                case MotionEvent.ACTION_BUTTON_RELEASE:
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_HOVER_EXIT:
+                    if(!isEdit()) {
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_LEFT));
+                    }
+                    v.setBackgroundResource(R.drawable.round_bottom_left);
+                    break;
+            }
+
+            return false;
+        }
+    };
+
+    private OnTouchListener listener_right = new OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
+            switch (action) {
+                case MotionEvent.ACTION_BUTTON_PRESS:
+                case MotionEvent.ACTION_DOWN:
+                    if(!isEdit()) {
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_PRESS_RIGHT));
+                    }
+                    v.setBackgroundResource(R.drawable.round_bottom_right_pressed);
+                    break;
+                case MotionEvent.ACTION_BUTTON_RELEASE:
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_HOVER_EXIT:
+                    if(!isEdit()) {
+                        Connect.SendMessage(ContentCreator.Click(ContentCreator.MOUSE_RELEASE_RIGHT));
+                    }
+                    v.setBackgroundResource(R.drawable.round_bottom_right);
+                    break;
+            }
+
+            return false;
+        }
+    };
 }
