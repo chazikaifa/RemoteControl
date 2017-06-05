@@ -75,8 +75,9 @@
             android:layout_below="@id/port_input"
             android:elevation="5dp"
             android:layout_marginTop="50dp"
-            android:background="@drawable/blue_button_selector"
+            android:background="@drawable/blue_released_background"
             android:text="连接"
+            android:textColor="@color/white"
             android:textSize="26sp" />
 
         <ListView

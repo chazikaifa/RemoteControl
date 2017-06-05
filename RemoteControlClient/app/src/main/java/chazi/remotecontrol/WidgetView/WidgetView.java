@@ -1,7 +1,6 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -218,8 +217,6 @@ public class WidgetView extends RelativeLayout {
             editLongClickThread.interrupt();
         }
 
-        Log.i("move", "X=" + initX + "   Y=" + initY);
-
         setX(initX - dX);
         setY(initY - dY);
 
@@ -334,7 +331,7 @@ public class WidgetView extends RelativeLayout {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //Eat it
             }
         }
     }

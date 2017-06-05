@@ -194,7 +194,7 @@ public class RealmDb {
             widget.setWidth(50);
             widget.setHeight(200);
             widget.setName("滚轮");
-            widget.setContent("sen~50");
+            widget.setContent("50");
 
             realm.copyToRealm(widget);
 
@@ -206,7 +206,7 @@ public class RealmDb {
             widget.setWidth(300);
             widget.setHeight(400);
             widget.setName("触摸板");
-            widget.setContent("");
+            widget.setContent("1000");
 
             realm.copyToRealm(widget);
 
@@ -261,7 +261,8 @@ public class RealmDb {
 
     //倒序输出，排在前面的是新数据
     public static List<IP> getAllIp(){
-        List<IP> ipList = realm.where(IP.class).findAll();
+        List<IP> ipList = new ArrayList<>();
+        ipList.addAll(realm.where(IP.class).findAll());
         Collections.reverse(ipList);
         return ipList;
     }

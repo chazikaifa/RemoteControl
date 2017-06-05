@@ -50,7 +50,7 @@ public class Widget extends RealmObject {
         this(panelId, 0, 0, 0, 0, 1, " ", " ");
     }
 
-    //根据控件类型生成默认控件大小
+    //根据控件类型生成默认控件大小以及默认参数
     public Widget(String panelId, int type) {
         this.panelId = panelId;
         X = 0;
@@ -66,20 +66,24 @@ public class Widget extends RealmObject {
                 width = 100;
                 break;
             case 3:
-                height = 200;
-                width = 50;
+                height = 80;
+                width = 30;
+                content = "50";
                 break;
             case 4:
+                //比例16:9
                 height = 150;
-                width = 200;
+                width = 267;
+                content = "1000";
                 break;
             case 5:
                 height = 50;
-                width = 300;
+                width = 200;
                 break;
             case 7:
                 height = 200;
                 width = 200;
+                content = "0";
                 break;
             default:
                 break;

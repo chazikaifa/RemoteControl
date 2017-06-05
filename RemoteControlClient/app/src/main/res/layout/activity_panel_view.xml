@@ -25,7 +25,7 @@
             android:gravity="center"
             android:layout_toRightOf="@+id/btn_back"
             android:layout_marginLeft="20dp"
-            android:textSize="20sp"
+            android:textSize="@dimen/panel_title_font_size"
             android:text="面板名称"/>
 
         <ImageView

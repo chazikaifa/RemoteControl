@@ -2,12 +2,17 @@ package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import chazi.remotecontrol.R;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.ContentCreator;
@@ -46,9 +51,12 @@ public class ButtonView extends WidgetView {
         btn.setWidth(widget.getWidthInPx(context));
         btn.setHeight(widget.getHeightInPx(context));
 
-        btn.setText(widget.getName());
         btn.setTextColor(Color.WHITE);
-        btn.setTextSize(20);
+
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
+        btn.setText(widget.getName());
+
+        btn.setBackgroundResource(R.drawable.blue_released_background);
 
         addView(btn);
     }
@@ -57,7 +65,8 @@ public class ButtonView extends WidgetView {
     protected void onDown(MotionEvent motionEvent) {
         super.onDown(motionEvent);
 
-        Log.i("down",ContentCreator.key(ContentCreator.KEY_PRESS,operation));
+        btn.setBackgroundResource(R.drawable.blue_pressed_background);
+        btn.setTextColor(Color.BLACK);
 
         Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_PRESS,operation));
     }
@@ -66,7 +75,8 @@ public class ButtonView extends WidgetView {
     protected void onUp(MotionEvent motionEvent) {
         super.onUp(motionEvent);
 
-        Log.i("down",ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
+        btn.setBackgroundResource(R.drawable.blue_released_background);
+        btn.setTextColor(Color.WHITE);
 
         Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
     }

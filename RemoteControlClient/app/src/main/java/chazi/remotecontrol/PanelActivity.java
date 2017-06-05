@@ -19,8 +19,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import chazi.remotecontrol.WidgetView.MousePadView;
-import chazi.remotecontrol.WidgetView.WheelView;
 import chazi.remotecontrol.WidgetView.WidgetView;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
@@ -78,7 +76,9 @@ public class PanelActivity extends Activity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                //按下返回按钮立即退出(没有双击提示)
+                backFlag = true;
+                onBackPressed();
             }
         });
         btn_back.setOnTouchListener(new MyOnTouchListener(getApplicationContext(), R.drawable.back_normal, R.drawable.back_selected));
@@ -142,6 +142,7 @@ public class PanelActivity extends Activity {
                                                 intent.putExtra("name", v.getWidget().getName());
                                                 intent.putExtra("content", v.getWidget().getContent());
                                                 intent.putExtra("index", widgetViewList.indexOf(v));
+                                                intent.putExtra("type",v.getWidget().getType());
                                                 startActivityForResult(intent, 0);
 
                                             }
@@ -196,6 +197,7 @@ public class PanelActivity extends Activity {
                     intent.putExtra("name", v.getWidget().getName());
                     intent.putExtra("content", v.getWidget().getContent());
                     intent.putExtra("index", widgetViewList.indexOf(v));
+                    intent.putExtra("type",v.getWidget().getType());
                     startActivityForResult(intent, 0);
 
                 }
@@ -243,10 +245,10 @@ public class PanelActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bundle bundle = data.getExtras();
-        int index = bundle.getInt("index");
 
         if(requestCode == REQUEST_EDIT_WIDGET){
+            Bundle bundle = data.getExtras();
+            int index = bundle.getInt("index");
             switch (resultCode){
                 case EditWidgetActivity.STATUS_OK:
                     String name = bundle.getString("name");
@@ -272,7 +274,6 @@ public class PanelActivity extends Activity {
                     int style = data.getIntExtra("style",1);
                     Widget widget = new Widget(panel.getId(),style);
                     final WidgetView widgetView = WidgetView.Creator(getApplicationContext(),widget);
-                    widgetView.setEdit(true);
                     widgetView.setOnEditLongClickListener(new WidgetView.OnEditLongClickListener() {
                         @Override
                         public void onEditLongClick() {
@@ -281,12 +282,13 @@ public class PanelActivity extends Activity {
                             intent.putExtra("name", widgetView.getWidget().getName());
                             intent.putExtra("content", widgetView.getWidget().getContent());
                             intent.putExtra("index", widgetViewList.indexOf(widgetView));
+                            intent.putExtra("type",widgetView.getWidget().getType());
                             startActivityForResult(intent, REQUEST_EDIT_WIDGET);
                         }
                     });
-
                     widgetViewList.add(widgetView);
                     panelView.addView(widgetView);
+                    widgetView.setEdit(true);
                     break;
                 case SelectWidgetActivity.STATUS_CANCEL:
                     break;
@@ -331,6 +333,7 @@ public class PanelActivity extends Activity {
                     .setNeutralButton("取消", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            backFlag = false;
                             dialog.dismiss();
                         }
                     })
