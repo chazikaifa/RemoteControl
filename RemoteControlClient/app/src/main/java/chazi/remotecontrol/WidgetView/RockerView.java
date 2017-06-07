@@ -7,7 +7,9 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import chazi.remotecontrol.R;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.ContentCreator;
@@ -29,7 +31,9 @@ public class RockerView extends WidgetView {
     private final double TAN_225 = Math.tan(Math.PI/8);
     private final double TAN_675 = Math.tan(3*Math.PI/8);
 
-    private String[] keys = new String[]{ContentCreator.KEY_W, ContentCreator.KEY_S, ContentCreator.KEY_A, ContentCreator.KEY_D};
+    private String[] keys;
+    private int keyType = 0;
+    private String[][] keysList = new String[3][4];
 
     private boolean[] position = new boolean[4], lastPosition = new boolean[4];
     //依次表示上下左右
@@ -37,6 +41,22 @@ public class RockerView extends WidgetView {
     public RockerView(Context context, Widget widget) {
         super(context, widget);
 
+        keysList[0] = new String[]{ContentCreator.KEY_W, ContentCreator.KEY_S, ContentCreator.KEY_A, ContentCreator.KEY_D};
+        keysList[1] = new String[]{ContentCreator.KEY_I, ContentCreator.KEY_K, ContentCreator.KEY_J, ContentCreator.KEY_L};
+        keysList[2] = new String[]{ContentCreator.KEY_UP, ContentCreator.KEY_DOWN, ContentCreator.KEY_LEFT, ContentCreator.KEY_RIGHT};
+
+        keyType = Integer.parseInt(widget.getContent());
+
+        try {
+            if(keyType >= 0 && keyType <= 2){
+                keys = keysList[keyType];
+            }else {
+                keys = keysList[0];
+            }
+        }catch (Exception e){
+            keys = keysList[0];
+            Toast.makeText(context,"摇杆数据出错!",Toast.LENGTH_SHORT).show();
+        }
 //        Log.i("tan(-67.5)",TAN_M_675+"");
 //        Log.i("tan(-22.5)",TAN_M_225+"");
 //        Log.i("tan(22.5)",TAN_225+"");
@@ -205,12 +225,12 @@ public class RockerView extends WidgetView {
         public MyView(Context context) {
             super(context);
 
-            //底板颜色为淡蓝色
-            padPaint.setColor(0xff0099cc);
+            //底板颜色为主题蓝色
+            padPaint.setColor(context.getResources().getColor(R.color.main_blue));
             padPaint.setAntiAlias(true);
             padPaint.setStrokeWidth(3);
-            //摇杆颜色为白色
-            rockerPaint.setColor(Color.GRAY);
+            //摇杆颜色为主题暗蓝色
+            rockerPaint.setColor(context.getResources().getColor(R.color.dark_blue));
             rockerPaint.setAntiAlias(true);
             rockerPaint.setStrokeWidth(3);
         }

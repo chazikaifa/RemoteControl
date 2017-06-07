@@ -4,11 +4,15 @@ import android.content.Context;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
+import chazi.remotecontrol.MyOnTouchListener;
+import chazi.remotecontrol.R;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.ContentCreator;
@@ -35,23 +39,25 @@ public class InputView extends WidgetView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        setBackgroundColor(0xff0099cc);
-
-        int margin = DensityUtil.dip2px(context,5);
+        setBackgroundResource(R.drawable.round_gray);
 
         LayoutParams lp_input = new LayoutParams(widget.getWidthInPx(context), widget.getHeightInPx(context));
-        lp_input.setMargins(0, 0, margin, 0);
+        input.setPadding(DensityUtil.dip2px(context,10),0,DensityUtil.dip2px(context,10),0);
+        input.setMaxLines(3);
+        input.setBackgroundResource(R.drawable.round_left);
         input.setLayoutParams(lp_input);
         input.setTextColor(Color.BLACK);
         input.setId(generateViewId());
+        input.setOnTouchListener(null);
 
-        float btn_height = widget.getHeight()-10;
-        btn_height = DensityUtil.dip2px(context,btn_height);
-
-        LayoutParams lp_send = new LayoutParams(DensityUtil.dip2px(context, 50), (int)btn_height);
+        LayoutParams lp_send = new LayoutParams(DensityUtil.dip2px(context, 70), widget.getHeightInPx(context));
         lp_send.addRule(RelativeLayout.RIGHT_OF,input.getId());
-        lp_send.setMargins(0,margin,0,margin);
+        btn_send.setText("发送");
+        btn_send.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
+        btn_send.setTextColor(Color.WHITE);
         btn_send.setLayoutParams(lp_send);
+        btn_send.setBackgroundResource(R.drawable.round_right);
+        btn_send.setOnTouchListener(new MyOnTouchListener(context,R.drawable.round_right,R.drawable.round_right_pressed));
 
         input.addTextChangedListener(watcher);
         btn_send.setOnClickListener(listener);
@@ -108,11 +114,13 @@ public class InputView extends WidgetView {
             input.setEnabled(true);
             input.setVisibility(VISIBLE);
             btn_send.setClickable(true);
+            btn_send.setOnTouchListener(new MyOnTouchListener(context,R.drawable.round_right,R.drawable.round_right_pressed));
         } else {
             input.setClickable(false);
             input.setEnabled(false);
             input.setVisibility(INVISIBLE);
             btn_send.setClickable(false);
+            btn_send.setOnTouchListener(null);
         }
     }
 }

@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 
 import android.content.Context;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -123,6 +124,7 @@ public class Connect {
 
         @Override
         protected Void doInBackground(String... params) {
+            Log.i("[Send Message]",params[0]);
             if(Global.out != null) {
                 Global.out.println(params[0]);
             }else {
@@ -166,7 +168,6 @@ public class Connect {
                 InetAddress serverAddr = InetAddress.getByName(ip);
 
                 Global.socket = new Socket(serverAddr, port);//Open socket on server IP and port
-                //socket = new Socket(Global.SERVER_IP, Global.SERVER_PORT);//Open socket on server IP and port
             } catch (IOException e) {
                 Log.e(TAG, "Error while connecting", e);
                 result = false;
@@ -178,8 +179,6 @@ public class Connect {
                 }
             }
             if(result){
-//                RsSharedUtil.putString(Global.context,"server_ip",params[0].split(":")[0]);
-
                 if(handler != null) {
                     Message message = new Message();
                     message.what = SAVE_IP;
@@ -214,8 +213,7 @@ public class Connect {
                     Global.in = new BufferedReader(new InputStreamReader(Global.socket.getInputStream()));
                 }
             }catch (IOException e){
-                Log.e(TAG, "Error while creating OutWriter", e);
-                //Toast.makeText(Global.context,"Error while connecting",Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Error while creating OutWriter or InReader", e);
             }
         }
 

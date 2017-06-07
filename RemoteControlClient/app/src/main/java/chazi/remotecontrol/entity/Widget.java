@@ -4,6 +4,7 @@ import android.content.Context;
 
 import chazi.remotecontrol.utils.DensityUtil;
 import io.realm.RealmObject;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,6 +13,14 @@ import org.json.JSONObject;
  */
 
 public class Widget extends RealmObject {
+    public static final int TYPE_BUTTON = 1;
+    public static final int TYPE_STATE_BUTTON = 2;
+    public static final int TYPE_WHEEL = 3;
+    public static final int TYPE_MOUSE_PAD = 4;
+    public static final int TYPE_INPUT = 5;
+    public static final int TYPE_BUTTON_GROUP = 6;
+    public static final int TYPE_ROCKER = 7;
+
     private String panelId;
     private float X;
     private float Y;
@@ -41,23 +50,63 @@ public class Widget extends RealmObject {
     private String name;
 
     //这个构造函数生成的控件如果panelId不进行修改即只存为自定义控件
-    public Widget(){
+    public Widget() {
         this("-1");
     }
 
-    public Widget(String panelId){
-        this(panelId,0,0,0,0,0," "," ");
+    public Widget(String panelId) {
+        this(panelId, 0, 0, 0, 0, 1, " ", " ");
     }
 
-    public Widget(String panelId,float x,float y,float width,float height){
-        this(panelId,x,y,width,height,0," "," ");
+    //根据控件类型生成默认控件大小以及默认参数
+    public Widget(String panelId, int type) {
+        this.panelId = panelId;
+        X = 0;
+        Y = 0;
+        content = "";
+        this.type = type;
+        switch (type) {
+            case 1:
+            case 2:
+            case 6:
+                name = "新建按键";
+                height = 50;
+                width = 100;
+                break;
+            case 3:
+                height = 80;
+                width = 30;
+                content = "50";
+                break;
+            case 4:
+                //比例16:9
+                height = 150;
+                width = 267;
+                content = "1000";
+                break;
+            case 5:
+                height = 50;
+                width = 200;
+                break;
+            case 7:
+                height = 200;
+                width = 200;
+                content = "0";
+                break;
+            default:
+                break;
+        }
     }
 
-    public Widget(String panelId,float x,float y,float width,float height,int type){
-        this(panelId,x,y,width,height,type," "," ");
+    public Widget(String panelId, float x, float y, float width, float height) {
+        this(panelId, x, y, width, height, 1, " ", " ");
     }
 
-    public Widget(String panelId, float x, float y, float width, float height, int type, String content, String name){
+    public Widget(String panelId, float x, float y, float width, float height, int type) {
+        this(panelId, x, y, width, height, type, " ", " ");
+    }
+
+    public Widget(String panelId, float x, float y, float width, float height, int type, String content, String name) {
         this.panelId = panelId;
         X = x;
         Y = y;
@@ -68,7 +117,7 @@ public class Widget extends RealmObject {
         this.name = name;
     }
 
-    public Widget(Widget widget){
+    public Widget(Widget widget) {
         this.panelId = widget.getPanelId();
         X = widget.getX();
         Y = widget.getY();
@@ -87,7 +136,12 @@ public class Widget extends RealmObject {
         this.height = (float) jsonObject.getDouble("height");
         this.type = jsonObject.getInt("type");
         this.content = jsonObject.getString("content");
-        this.name = jsonObject.getString("name");
+
+        if(type == TYPE_BUTTON||type == TYPE_STATE_BUTTON||type == TYPE_BUTTON_GROUP) {
+            this.name = jsonObject.getString("name");
+        }else {
+            this.name = "";
+        }
     }
 
     public String getPanelId() {
@@ -130,19 +184,19 @@ public class Widget extends RealmObject {
         this.height = height;
     }
 
-    public void setWidthInPx(float pxw, Context context){
-        width = DensityUtil.px2dip(context,pxw);
+    public void setWidthInPx(float pxw, Context context) {
+        width = DensityUtil.px2dip(context, pxw);
     }
 
-    public int getWidthInPx(Context context){
+    public int getWidthInPx(Context context) {
         return DensityUtil.dip2px(context, width);
     }
 
-    public void setHeightInPx(float pxh, Context context){
-        height = DensityUtil.px2dip(context,pxh);
+    public void setHeightInPx(float pxh, Context context) {
+        height = DensityUtil.px2dip(context, pxh);
     }
 
-    public int getHeightInPx(Context context){
+    public int getHeightInPx(Context context) {
         return DensityUtil.dip2px(context, height);
     }
 
@@ -170,19 +224,19 @@ public class Widget extends RealmObject {
         this.name = name;
     }
 
-    public JSONObject toJson(){
+    public JSONObject toJson() {
 
         JSONObject jsonObject = null;
         try {
             jsonObject = new JSONObject();
-            jsonObject.put("panelId",panelId);
-            jsonObject.put("X",X);
-            jsonObject.put("Y",Y);
-            jsonObject.put("width",width);
-            jsonObject.put("height",height);
-            jsonObject.put("type",type);
-            jsonObject.put("content",content);
-            jsonObject.put("name",name);
+            jsonObject.put("panelId", panelId);
+            jsonObject.put("X", X);
+            jsonObject.put("Y", Y);
+            jsonObject.put("width", width);
+            jsonObject.put("height", height);
+            jsonObject.put("type", type);
+            jsonObject.put("content", content);
+            jsonObject.put("name", name);
         } catch (JSONException e) {
             e.printStackTrace();
         }

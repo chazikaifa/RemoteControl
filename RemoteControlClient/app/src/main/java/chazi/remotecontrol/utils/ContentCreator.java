@@ -1,9 +1,7 @@
 package chazi.remotecontrol.utils;
 
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.List;
 
 /**
  * Created by 595056078 on 2017/4/12.
@@ -12,6 +10,18 @@ import java.util.List;
  */
 
 public class ContentCreator {
+
+    public static final int ORDER_TYPE_MOUSE_MOVE = 0;
+    public static final int ORDER_TYPE_MOUSE_MOVE_ABS = 1;
+    public static final int ORDER_TYPE_MOUSE_CLICK = 2;
+    public static final int ORDER_TYPE_MOUSE_HOLD = 3;
+    public static final int ORDER_TYPE_MOUSE_RELEASE = 4;
+    public static final int ORDER_TYPE_KEY = 5;
+    public static final int ORDER_TYPE_KEY_DOWN = 6;
+    public static final int ORDER_TYPE_KEY_UP = 7;
+    public static final int ORDER_TYPE_WHEEL = 8;
+    public static final int ORDER_TYPE_STRING = 9;
+    public static final int ORDER_TYPE_DELAY = 10;
 
     public static final int MOUSE_CLICK_LEFT = 1;
     public static final int MOUSE_PRESS_LEFT = 2;
@@ -91,7 +101,7 @@ public class ContentCreator {
     public static final String KEY_F11 = "f11";
     public static final String KEY_F12 = "f12";
 
-    public static final String[] KET_Fs = {
+    public static final String[] KEY_Fs = {
             KEY_F1, KEY_F2, KEY_F3,
             KEY_F4, KEY_F5, KEY_F6,
             KEY_F7, KEY_F8, KEY_F9,
@@ -201,7 +211,7 @@ public class ContentCreator {
     };
 
     public static final String[][] defaultKeys = {
-            letters, numbers, symbol_group_1, symbol_group_2, controls
+            letters, numbers, KEY_Fs,symbol_group_1, symbol_group_2, controls
     };
 
     public static String Click(int flag) {
@@ -266,11 +276,11 @@ public class ContentCreator {
     }
 
     //鼠标绝对移动量
-    public static String absMove(int x, int y) {
+    public static String absMove(float x, float y) {
         return absMove(x, y, "");
     }
 
-    public static String absMove(int x, int y, String content) {
+    public static String absMove(float x, float y, String content) {
         if (!content.equals("")) {
             content += "~";
         }

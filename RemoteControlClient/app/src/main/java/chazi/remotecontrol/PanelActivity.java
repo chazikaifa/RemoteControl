@@ -19,8 +19,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import chazi.remotecontrol.WidgetView.MousePadView;
-import chazi.remotecontrol.WidgetView.WheelView;
 import chazi.remotecontrol.WidgetView.WidgetView;
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Panel;
@@ -32,15 +30,16 @@ import chazi.remotecontrol.entity.Widget;
 
 public class PanelActivity extends Activity {
 
+    public static final int REQUEST_EDIT_WIDGET = 0;
+    public static final int REQUEST_NEW_WIDGET = 1;
+
     private Panel panel;
     private boolean backFlag = false;
     private List<Widget> widgetList = new ArrayList<>();
     private List<WidgetView> widgetViewList;
     private RelativeLayout panelView;
     private TextView title;
-    private ImageView btn_edit, btn_back;
-    private LinearLayout menu_ll;
-    private LinearLayout btn_newWidget;
+    private ImageView btn_edit, btn_back, btn_newWidget, btn_clear;
 
     private boolean isEdit = false;
 
@@ -77,10 +76,12 @@ public class PanelActivity extends Activity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                //按下返回按钮立即退出(没有双击提示)
+                backFlag = true;
+                onBackPressed();
             }
         });
-        btn_back.setOnTouchListener(new MyOnTouchListener(getApplicationContext(),R.drawable.back_normal,R.drawable.back_selected));
+        btn_back.setOnTouchListener(new MyOnTouchListener(getApplicationContext(), R.drawable.back_normal, R.drawable.back_selected));
 
         btn_edit = (ImageView) findViewById(R.id.btn_edit);
         btn_edit.setOnClickListener(new View.OnClickListener() {
@@ -88,8 +89,9 @@ public class PanelActivity extends Activity {
             public void onClick(View view) {
                 isEdit = !isEdit;
                 if (isEdit) {
-                    menu_ll.setVisibility(View.VISIBLE);
                     btn_edit.setImageResource(R.drawable.edit_selected);
+                    btn_newWidget.setVisibility(View.VISIBLE);
+                    btn_clear.setVisibility(View.VISIBLE);
 
                     Toast.makeText(getApplicationContext(), "进入编辑状态!", Toast.LENGTH_SHORT).show();
 
@@ -109,8 +111,9 @@ public class PanelActivity extends Activity {
                                     }
                                     RealmDb.saveWidgets(widgetList, panel.getId());
 
-                                    menu_ll.setVisibility(View.GONE);
                                     btn_edit.setImageResource(R.drawable.edit_normal);
+                                    btn_newWidget.setVisibility(View.GONE);
+                                    btn_clear.setVisibility(View.GONE);
 
                                     for (WidgetView widgetView : widgetViewList) {
                                         widgetView.setEdit(isEdit);
@@ -135,19 +138,21 @@ public class PanelActivity extends Activity {
                                             @Override
                                             public void onEditLongClick() {
                                                 Intent intent = new Intent();
-                                                intent.setClass(PanelActivity.this,EditWidgetActivity.class);
-                                                intent.putExtra("name",v.getWidget().getName());
-                                                intent.putExtra("content",v.getWidget().getContent());
-                                                intent.putExtra("index",widgetViewList.indexOf(v));
-                                                startActivityForResult(intent,0);
+                                                intent.setClass(PanelActivity.this, EditWidgetActivity.class);
+                                                intent.putExtra("name", v.getWidget().getName());
+                                                intent.putExtra("content", v.getWidget().getContent());
+                                                intent.putExtra("index", widgetViewList.indexOf(v));
+                                                intent.putExtra("type",v.getWidget().getType());
+                                                startActivityForResult(intent, 0);
 
                                             }
                                         });
                                         panelView.addView(v);
                                     }
 
-                                    menu_ll.setVisibility(View.GONE);
                                     btn_edit.setImageResource(R.drawable.edit_normal);
+                                    btn_newWidget.setVisibility(View.GONE);
+                                    btn_clear.setVisibility(View.GONE);
 
                                     for (WidgetView widgetView : widgetViewList) {
                                         widgetView.setEdit(isEdit);
@@ -176,95 +181,124 @@ public class PanelActivity extends Activity {
                 }
             }
         });
+        btn_edit.setOnTouchListener(new MyOnTouchListener(PanelActivity.this));
 
         panelView = (RelativeLayout) findViewById(R.id.panelView);
 
 
-        for (Widget widget:widgetList) {
+        for (Widget widget : widgetList) {
             final WidgetView v = WidgetView.Creator(getApplicationContext(), widget);
             widgetViewList.add(v);
             v.setOnEditLongClickListener(new WidgetView.OnEditLongClickListener() {
                 @Override
                 public void onEditLongClick() {
                     Intent intent = new Intent();
-                    intent.setClass(PanelActivity.this,EditWidgetActivity.class);
-                    intent.putExtra("name",v.getWidget().getName());
-                    intent.putExtra("content",v.getWidget().getContent());
-                    intent.putExtra("index",widgetViewList.indexOf(v));
-                    startActivityForResult(intent,0);
+                    intent.setClass(PanelActivity.this, EditWidgetActivity.class);
+                    intent.putExtra("name", v.getWidget().getName());
+                    intent.putExtra("content", v.getWidget().getContent());
+                    intent.putExtra("index", widgetViewList.indexOf(v));
+                    intent.putExtra("type",v.getWidget().getType());
+                    startActivityForResult(intent, 0);
 
                 }
             });
             panelView.addView(v);
         }
 
-        menu_ll = (LinearLayout) findViewById(R.id.menu_ll);
-        btn_newWidget = (LinearLayout) findViewById(R.id.new_widget);
+        btn_newWidget = (ImageView) findViewById(R.id.new_widget);
         btn_newWidget.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Widget widget = new Widget(panel.getId(),0,0,100,50,6,"","新建按键");
-
-                final WidgetView widgetView = WidgetView.Creator(getApplicationContext(),widget);
-                widgetView.setEdit(true);
-                widgetViewList.add(widgetView);
-                widgetView.setOnEditLongClickListener(new WidgetView.OnEditLongClickListener() {
-                    @Override
-                    public void onEditLongClick() {
-                        Intent intent = new Intent();
-                        intent.setClass(PanelActivity.this,EditWidgetActivity.class);
-                        intent.putExtra("name",widgetView.getWidget().getName());
-                        intent.putExtra("content",widgetView.getWidget().getContent());
-                        intent.putExtra("index",widgetViewList.indexOf(widgetView));
-                        startActivityForResult(intent,0);
-
-                    }
-                });
-
-                panelView.addView(widgetView);
-
                 Intent intent = new Intent();
-                intent.setClass(PanelActivity.this,EditWidgetActivity.class);
-                intent.putExtra("name",widgetView.getWidget().getName());
-                intent.putExtra("content",widgetView.getWidget().getContent());
-                intent.putExtra("index",widgetViewList.indexOf(widgetView));
-                startActivityForResult(intent,0);
+                intent.setClass(PanelActivity.this, SelectWidgetActivity.class);
+                startActivityForResult(intent, REQUEST_NEW_WIDGET);
             }
         });
-        btn_newWidget.setOnTouchListener(new MyOnTouchListener(PanelActivity.this));
+        btn_newWidget.setOnTouchListener(new MyOnTouchListener(PanelActivity.this, R.drawable.new_normal, R.drawable.new_selected));
 
+        btn_clear = (ImageView) findViewById(R.id.btn_clear);
+        btn_clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(PanelActivity.this)
+                        .setTitle("清空面板")
+                        .setMessage("确认要清空面板吗?")
+                        .setPositiveButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                panelView.removeAllViews();
+                                widgetViewList.clear();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("否", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+            }
+        });
+        btn_clear.setOnTouchListener(new MyOnTouchListener(PanelActivity.this,R.drawable.delete_normal,R.drawable.delete_selected));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bundle bundle = data.getExtras();
-        int index = bundle.getInt("index");
 
-        try {
-            if (requestCode == 0 && resultCode == EditWidgetActivity.STATUS_OK) {
-                String name = bundle.getString("name");
-                String content = bundle.getString("content");
+        if(requestCode == REQUEST_EDIT_WIDGET){
+            Bundle bundle = data.getExtras();
+            int index = bundle.getInt("index");
+            switch (resultCode){
+                case EditWidgetActivity.STATUS_OK:
+                    String name = bundle.getString("name");
+                    String content = bundle.getString("content");
 
-                Log.i("onResult","name = "+name + " content = "+content);
+                    Log.i("onResult", "name = " + name + " content = " + content);
 
-                Widget widget = new Widget(widgetViewList.get(index).getWidget());
-                widget.setName(name);
-                widget.setContent(content);
-                widgetViewList.get(index).setWidget(widget);
-            } else if(requestCode == 0 && resultCode == EditWidgetActivity.STATUS_DELETE){
-                panelView.removeView(widgetViewList.get(index));
-                widgetViewList.remove(index);
-            }else if(requestCode == 0 && resultCode == EditWidgetActivity.STATUS_CANCEL){
-                //取消编辑
+                    Widget widget = new Widget(widgetViewList.get(index).getWidget());
+                    widget.setName(name);
+                    widget.setContent(content);
+                    widgetViewList.get(index).setWidget(widget);
+                    break;
+                case EditWidgetActivity.STATUS_DELETE:
+                    panelView.removeView(widgetViewList.get(index));
+                    widgetViewList.remove(index);
+                    break;
+                case EditWidgetActivity.STATUS_CANCEL:
+                    break;
             }
-        }catch (Exception e){
-            Log.i("onResult",e.toString());
+        }else if(requestCode == REQUEST_NEW_WIDGET){
+            switch (resultCode){
+                case SelectWidgetActivity.STATUS_OK:
+                    int style = data.getIntExtra("style",1);
+                    Widget widget = new Widget(panel.getId(),style);
+                    final WidgetView widgetView = WidgetView.Creator(getApplicationContext(),widget);
+                    widgetView.setOnEditLongClickListener(new WidgetView.OnEditLongClickListener() {
+                        @Override
+                        public void onEditLongClick() {
+                            Intent intent = new Intent();
+                            intent.setClass(PanelActivity.this, EditWidgetActivity.class);
+                            intent.putExtra("name", widgetView.getWidget().getName());
+                            intent.putExtra("content", widgetView.getWidget().getContent());
+                            intent.putExtra("index", widgetViewList.indexOf(widgetView));
+                            intent.putExtra("type",widgetView.getWidget().getType());
+                            startActivityForResult(intent, REQUEST_EDIT_WIDGET);
+                        }
+                    });
+                    widgetViewList.add(widgetView);
+                    panelView.addView(widgetView);
+                    widgetView.setEdit(true);
+                    break;
+                case SelectWidgetActivity.STATUS_CANCEL:
+                    break;
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
-        if(isEdit){
+        if (isEdit) {
             new AlertDialog.Builder(PanelActivity.this)
                     .setTitle("警告")
                     .setMessage("正在进行编辑，是否保存修改？")
@@ -277,8 +311,9 @@ public class PanelActivity extends Activity {
                             }
                             RealmDb.saveWidgets(widgetList, panel.getId());
 
-                            menu_ll.setVisibility(View.GONE);
                             btn_edit.setImageResource(R.drawable.edit_normal);
+                            btn_newWidget.setVisibility(View.GONE);
+                            btn_clear.setVisibility(View.GONE);
 
                             for (WidgetView widgetView : widgetViewList) {
                                 widgetView.setEdit(isEdit);
@@ -298,11 +333,12 @@ public class PanelActivity extends Activity {
                     .setNeutralButton("取消", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            backFlag = false;
                             dialog.dismiss();
                         }
                     })
                     .show();
-        }else if (!backFlag) {
+        } else if (!backFlag) {
             backFlag = true;
             Toast.makeText(getApplicationContext(), "再按一次退出面板", Toast.LENGTH_SHORT).show();
             new Handler().postDelayed(new Runnable() {

@@ -163,72 +163,50 @@ public class RealmDb {
             realm.copyToRealmOrUpdate(panels);
 
             //按键
-            Widget widget = new Widget(panel1.getId());
-            widget.setType(1);
+            Widget widget = new Widget(panel1.getId(),1);
             widget.setX(300);
             widget.setY(300);
-            widget.setWidth(100);
-            widget.setHeight(50);
             widget.setName("按键A");
             widget.setContent(ContentCreator.key(ContentCreator.KEY_CLICK,ContentCreator.KEY_A));
 
             realm.copyToRealm(widget);
 
             //状态按键
-            widget = new Widget(panel2.getId());
-            widget.setType(2);
+            widget = new Widget(panel2.getId(),2);
             widget.setX(300);
             widget.setY(300);
-            widget.setWidth(100);
-            widget.setHeight(50);
             widget.setName("状态按键A");
             widget.setContent(ContentCreator.key(ContentCreator.KEY_CLICK,ContentCreator.KEY_A));
 
             realm.copyToRealm(widget);
 
             //滚轮
-            widget = new Widget(panel3.getId());
-            widget.setType(3);
+            widget = new Widget(panel3.getId(),3);
             widget.setX(300);
             widget.setY(300);
-            widget.setWidth(50);
-            widget.setHeight(200);
-            widget.setName("滚轮");
-            widget.setContent("sen~50");
+            widget.setContent("50");
 
             realm.copyToRealm(widget);
 
             //触摸板
-            widget = new Widget(panel4.getId());
-            widget.setType(4);
+            widget = new Widget(panel4.getId(),4);
             widget.setX(10);
             widget.setY(50);
-            widget.setWidth(300);
-            widget.setHeight(400);
-            widget.setName("触摸板");
-            widget.setContent("");
+            widget.setContent("1000");
 
             realm.copyToRealm(widget);
 
             //输入框
-            widget = new Widget(panel5.getId());
-            widget.setType(5);
+            widget = new Widget(panel5.getId(),5);
             widget.setX(5);
             widget.setY(10);
-            widget.setWidth(300);
-            widget.setHeight(70);
-            widget.setName("输入框");
-            widget.setContent("");
 
             realm.copyToRealm(widget);
 
             //自定义按键
-            widget = new Widget(panel6.getId());
-            widget.setType(6);
+            widget = new Widget(panel6.getId(),6);
             widget.setX(300);
             widget.setY(300);
-            widget.setWidth(100);
-            widget.setHeight(50);
             widget.setName("下一首");
 
             String content = "";
@@ -243,14 +221,10 @@ public class RealmDb {
             realm.copyToRealm(widget);
 
             //摇杆
-            widget = new Widget(panel7.getId());
-            widget.setType(7);
+            widget = new Widget(panel7.getId(),7);
             widget.setX(300);
             widget.setY(300);
-            widget.setWidth(200);
-            widget.setHeight(200);
-            widget.setName("摇杆");
-            widget.setContent("");
+            widget.setContent("1");
 
             realm.copyToRealm(widget);
 
@@ -261,7 +235,8 @@ public class RealmDb {
 
     //倒序输出，排在前面的是新数据
     public static List<IP> getAllIp(){
-        List<IP> ipList = realm.where(IP.class).findAll();
+        List<IP> ipList = new ArrayList<>();
+        ipList.addAll(realm.where(IP.class).findAll());
         Collections.reverse(ipList);
         return ipList;
     }
@@ -298,7 +273,7 @@ public class RealmDb {
         //保存数据库的config
         config = RealmDb.realm.getConfiguration();
 
-        //Widget表中panelId为-1的数据条数为0说明为新数据库，写入默认按键数据
+        //Widget表中panelId为0的数据条数为0说明为新数据库，写入默认按键数据
         if(getWidgetsByPanelId("0").size() == 0){
             refreshDefaultKeys();
         }

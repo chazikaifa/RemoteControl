@@ -2,11 +2,16 @@ package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 
+import chazi.remotecontrol.R;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.ContentCreator;
@@ -46,24 +51,37 @@ public class StateButtonView extends WidgetView {
         btn.setWidth(widget.getWidthInPx(context));
         btn.setHeight(widget.getHeightInPx(context));
 
-        btn.setText(widget.getName());
         btn.setTextColor(Color.WHITE);
-        btn.setTextSize(20);
+
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
+        btn.setText(widget.getName());
+
+        btn.setBackgroundResource(R.drawable.blue_released_background);
 
         addView(btn);
+    }
+
+    @Override
+    protected void onDown(MotionEvent motionEvent) {
+        super.onDown(motionEvent);
+
+        btn.setBackgroundResource(R.drawable.blue_pressed_background);
     }
 
     @Override
     protected void onUp(MotionEvent motionEvent) {
         super.onUp(motionEvent);
 
-        Log.i("stateButton","isPress = "+isPress+"   op = "+operation);
+        btn.setBackgroundResource(R.drawable.blue_released_background);
 
         if(isPress) {
             Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_RELEASE,operation));
+            btn.setTextColor(Color.WHITE);
         }else {
             Connect.SendMessage(ContentCreator.key(ContentCreator.KEY_PRESS,operation));
+            btn.setTextColor(Color.BLACK);
         }
+        isPress = !isPress;
     }
 
     public void setOperation(String op){

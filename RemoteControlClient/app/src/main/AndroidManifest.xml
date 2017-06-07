@@ -26,6 +26,7 @@
         <activity android:name=".PanelActivity"/>
         <activity android:name=".PanelListActivity"/>
         <activity android:name=".EditWidgetActivity"/>
+        <activity android:name=".SelectWidgetActivity"/>
     </application>
 
 </manifest>

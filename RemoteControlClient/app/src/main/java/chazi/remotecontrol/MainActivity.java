@@ -1,6 +1,7 @@
 package chazi.remotecontrol;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -218,6 +220,27 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                     ip_input.setEnabled(true);
                     port_input.setEnabled(true);
                 }
+            }
+        });
+        btn_link.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_BUTTON_PRESS:
+                        btn_link.setBackgroundResource(R.drawable.blue_pressed_background);
+                        btn_link.setTextColor(Color.BLACK);
+                        break;
+                    case MotionEvent.ACTION_BUTTON_RELEASE:
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                        btn_link.setBackgroundResource(R.drawable.blue_released_background);
+                        btn_link.setTextColor(Color.WHITE);
+                        break;
+                }
+
+                return false;
             }
         });
 

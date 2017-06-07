@@ -1,8 +1,6 @@
 package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -26,10 +24,30 @@ public class WidgetView extends RelativeLayout {
     protected boolean mouseMoved;
     protected Thread longClickThread,editLongClickThread;
 
+    public static final String[] WidgetStyleList = {
+            "按键",
+            "状态按键",
+            "滚轮",
+            "触摸板",
+            "输入框",
+            "组合键",
+            "摇杆"
+    };
+
+    public static final String[] WidgetSytleDescription = {
+            "完全模拟电脑键盘的单个按键",
+            "使键盘单个按键按下或松开",
+            "模拟电脑鼠标滚轮滚动",
+            "模拟电脑触摸板",
+            "发送输入的字符串到电脑并执行粘贴命令",
+            "执行连续的一串指令",
+            "模拟手柄的摇杆"
+    };
+
     //根据widget的类型，生成不同的视图
     public static WidgetView Creator(Context context, Widget widget) {
 
-        WidgetView v = null;
+        WidgetView v;
         switch (widget.getType()) {
             case 1:
                 v = new ButtonView(context, widget);
@@ -53,6 +71,7 @@ public class WidgetView extends RelativeLayout {
                 v = new RockerView(context, widget);
                 break;
             default:
+                v = new ButtonView(context, widget);
                 break;
         }
         return v;
@@ -198,8 +217,6 @@ public class WidgetView extends RelativeLayout {
             editLongClickThread.interrupt();
         }
 
-        Log.i("move", "X=" + initX + "   Y=" + initY);
-
         setX(initX - dX);
         setY(initY - dY);
 
@@ -314,7 +331,7 @@ public class WidgetView extends RelativeLayout {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //Eat it
             }
         }
     }

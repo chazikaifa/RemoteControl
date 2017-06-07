@@ -2,13 +2,17 @@ package chazi.remotecontrol.WidgetView;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import chazi.remotecontrol.R;
 import chazi.remotecontrol.entity.Widget;
 import chazi.remotecontrol.utils.Connect;
 import chazi.remotecontrol.utils.ContentCreator;
+import chazi.remotecontrol.utils.DensityUtil;
 
 /**
  * Created by 595056078 on 2017/4/29.
@@ -17,32 +21,53 @@ import chazi.remotecontrol.utils.ContentCreator;
 public class WheelView extends WidgetView {
 
     private int sensitivity = 10;
-    private ImageView v;
+    private ImageView up,down,split;
 
     public WheelView(Context context, Widget widget) {
         super(context, widget);
 
-        v = new ImageView(context);
+        up = new ImageView(context);
+        down = new ImageView(context);
+        split = new ImageView(context);
 
-        contents = widget.getContent().split("~");
-        for (int i = 0; i < contents.length - 1; i++) {
-            if (contents[i].equals("sen")) {
-                sensitivity = Integer.valueOf(contents[i + 1]);
-                break;
-            }
-        }
+        up.setImageResource(R.drawable.up);
+        split.setBackgroundColor(Color.WHITE);
+        down.setImageResource(R.drawable.down);
+
+        sensitivity = Integer.valueOf(widget.getContent());
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
+        setBackgroundResource(R.drawable.blue_released_background);
+
         LayoutParams lp = new LayoutParams(widget.getWidthInPx(context), widget.getHeightInPx(context));
-        v.setLayoutParams(lp);
+        setLayoutParams(lp);
 
-        v.setBackgroundColor(Color.BLUE);
+        int padding = DensityUtil.dip2px(context,7);
 
-        addView(v);
+        LayoutParams lp_up = new LayoutParams(widget.getWidthInPx(context),widget.getWidthInPx(context));
+        lp_up.addRule(ALIGN_PARENT_TOP,TRUE);
+        up.setPadding(padding,padding,padding,padding);
+        up.setLayoutParams(lp_up);
+        up.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        LayoutParams lp_sp = new LayoutParams(widget.getWidthInPx(context),DensityUtil.dip2px(context,1));
+        lp_sp.addRule(CENTER_IN_PARENT,TRUE);
+        lp_sp.setMargins(DensityUtil.dip2px(context,3),0,DensityUtil.dip2px(context,3),0);
+        split.setLayoutParams(lp_sp);
+
+        LayoutParams lp_down = new LayoutParams(widget.getWidthInPx(context),widget.getWidthInPx(context));
+        lp_down.addRule(ALIGN_PARENT_BOTTOM,TRUE);
+        down.setPadding(padding,padding,padding,padding);
+        down.setLayoutParams(lp_down);
+        down.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        addView(up);
+        addView(split);
+        addView(down);
     }
 
     @Override
@@ -60,7 +85,7 @@ public class WheelView extends WidgetView {
             } else {
                 symbol = 1;
             }
-            Connect.SendMessage(ContentCreator.wheel(symbol*sensitivity));
+            Connect.SendMessage(ContentCreator.wheel(symbol * sensitivity));
         }
     }
 
