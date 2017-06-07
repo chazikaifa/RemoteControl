@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import chazi.remotecontrol.R;
 import chazi.remotecontrol.entity.Widget;
@@ -46,10 +47,15 @@ public class RockerView extends WidgetView {
 
         keyType = Integer.parseInt(widget.getContent());
 
-        if(keyType >= 0 && keyType <= 2){
-            keys = keysList[keyType];
-        }else {
+        try {
+            if(keyType >= 0 && keyType <= 2){
+                keys = keysList[keyType];
+            }else {
+                keys = keysList[0];
+            }
+        }catch (Exception e){
             keys = keysList[0];
+            Toast.makeText(context,"摇杆数据出错!",Toast.LENGTH_SHORT).show();
         }
 //        Log.i("tan(-67.5)",TAN_M_675+"");
 //        Log.i("tan(-22.5)",TAN_M_225+"");

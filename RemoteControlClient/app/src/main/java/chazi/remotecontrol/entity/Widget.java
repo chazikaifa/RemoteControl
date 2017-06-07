@@ -13,6 +13,14 @@ import org.json.JSONObject;
  */
 
 public class Widget extends RealmObject {
+    public static final int TYPE_BUTTON = 1;
+    public static final int TYPE_STATE_BUTTON = 2;
+    public static final int TYPE_WHEEL = 3;
+    public static final int TYPE_MOUSE_PAD = 4;
+    public static final int TYPE_INPUT = 5;
+    public static final int TYPE_BUTTON_GROUP = 6;
+    public static final int TYPE_ROCKER = 7;
+
     private String panelId;
     private float X;
     private float Y;
@@ -128,7 +136,12 @@ public class Widget extends RealmObject {
         this.height = (float) jsonObject.getDouble("height");
         this.type = jsonObject.getInt("type");
         this.content = jsonObject.getString("content");
-        this.name = jsonObject.getString("name");
+
+        if(type == TYPE_BUTTON||type == TYPE_STATE_BUTTON||type == TYPE_BUTTON_GROUP) {
+            this.name = jsonObject.getString("name");
+        }else {
+            this.name = "";
+        }
     }
 
     public String getPanelId() {

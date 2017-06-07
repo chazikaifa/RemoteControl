@@ -39,18 +39,13 @@
             android:src="@drawable/delete_normal" />
     </RelativeLayout>
 
-    <!--<chazi.remotecontrol.OrderListView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_below="@id/title_rl"/>-->
-
     <RelativeLayout
         android:id="@+id/button_rl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/title_rl"
         android:layout_marginBottom="@dimen/menu_height"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:id="@+id/name_ll"
@@ -102,19 +97,29 @@
         <EditText
             android:id="@+id/btn_content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_below="@+id/btn_content_label"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:padding="10dp"
+            android:background="@drawable/round_gray"
             android:hint="请输入按键功能" />
+
+        <ImageView
+            android:id="@+id/btn_add_order"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/plus"
+            android:padding="10dp"
+            android:layout_alignEnd="@+id/btn_content"
+            android:layout_alignTop="@+id/btn_content"/>
 
         <ListView
             android:id="@+id/search_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/btn_content"
-            android:visibility="invisible">
-
+            android:layout_marginTop="20dp">
         </ListView>
     </RelativeLayout>
 

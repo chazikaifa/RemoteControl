@@ -9,8 +9,10 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,6 +29,7 @@ import java.util.regex.Pattern;
 
 import chazi.remotecontrol.db.RealmDb;
 import chazi.remotecontrol.entity.Widget;
+import chazi.remotecontrol.utils.DensityUtil;
 
 /**
  * Created by 595056078 on 2017/5/3.
@@ -47,11 +50,13 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
     private ListView searchListView;
     private List<Widget> defaultWidgetList = new ArrayList<>();
     private List<Widget> searchList = new ArrayList<>();
+    private List<String> orderList = new ArrayList<>();
     private SearchAdapter adapter;
+    private OrderListAdapter orderAdapter;
     private String word, name, content;
     private int type;
     private TextView btn_confirm;
-    private ImageView btn_back, btn_delete;
+    private ImageView btn_back, btn_delete, btn_add_order;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,8 +120,10 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
         switch (type) {
             case 1:
             case 2:
-            case 6:
                 SetButton();
+                break;
+            case 6:
+                SetGroupButton();
                 break;
             case 3:
             case 4:
@@ -131,8 +138,83 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
         }
     }
 
+    private void SetGroupButton() {
+        button_rl.setVisibility(View.VISIBLE);
+
+        btn_add_order = (ImageView) findViewById(R.id.btn_add_order);
+        btn_add_order.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s = content_et.getText().toString();
+                orderAdapter.add(s);
+                orderAdapter.notifyDataSetChanged();
+            }
+        });
+        btn_add_order.setOnTouchListener(new MyOnTouchListener(getApplicationContext(), R.drawable.plus, R.drawable.plus_press, R.color.transparent, R.color.gray));
+
+        name_et = (EditText) findViewById(R.id.widget_name);
+        name_et.setText(name);
+        content_et = (EditText) findViewById(R.id.btn_content);
+        content_et.setHint("新增命令");
+        content_et.setPadding(DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 60), DensityUtil.dip2px(getApplicationContext(), 10));
+
+        final String[] orders = content.split("~");
+        int n;
+        if (orders.length % 2 == 0) {
+            n = orders.length / 2;
+            for (int i = 0; i < n; i++) {
+                orderList.add(orders[2 * i] + "~" + orders[2 * i + 1]);
+            }
+        } else {
+            n = (orders.length - 1) / 2;
+            for (int i = 0; i < n; i++) {
+                orderList.add(orders[2 * i] + "~" + orders[2 * i + 1]);
+            }
+            if (!orders[2 * n].equals("")) {
+                orderList.add(orders[2 * n]);
+            }
+        }
+
+        searchListView = (ListView) findViewById(R.id.search_list);
+        orderAdapter = new OrderListAdapter(getApplicationContext(), R.layout.item_order, orderList);
+        searchListView.setAdapter(orderAdapter);
+
+        btn_confirm = (TextView) findViewById(R.id.btn_confirm);
+        btn_confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                name = name_et.getText().toString();
+
+                if(!orderList.isEmpty()) {
+                    content = orderList.get(0);
+                    for (int i = 1; i < orderList.size(); i++) {
+                        content += "~"+orderList.get(i);
+                    }
+                }else {
+                    content = "";
+                }
+
+                Intent intent = new Intent();
+                Bundle bundle = new Bundle();
+                bundle.putString("name", name);
+                bundle.putString("content", content);
+
+                Log.i("onEdit", "name = " + name + " content = " + content);
+
+                bundle.putInt("index", index);
+                intent.putExtras(bundle);
+                setResult(STATUS_OK, intent);
+                finish();
+            }
+        });
+        btn_confirm.setOnTouchListener(new MyOnTouchListener(EditWidgetActivity.this));
+    }
+
     private void SetButton() {
         button_rl.setVisibility(View.VISIBLE);
+
+        btn_add_order = (ImageView) findViewById(R.id.btn_add_order);
+        btn_add_order.setVisibility(View.GONE);
 
         name_et = (EditText) findViewById(R.id.widget_name);
         name_et.setText(name);
@@ -157,30 +239,26 @@ public class EditWidgetActivity extends Activity implements AdapterView.OnItemCl
 
                 try {
 
-                    if (word.equals("")) {
-                        searchListView.setVisibility(View.INVISIBLE);
-                        searchList.clear();
-                    } else {
-                        Pattern pattern = Pattern.compile(".*" + word + ".*");
-                        Matcher matcher;
+//                    if (word.equals("")) {
+//                        searchListView.setVisibility(View.INVISIBLE);
+//                        searchList.clear();
+//                    } else {
+                    Pattern pattern = Pattern.compile(".*" + word + ".*");
+                    Matcher matcher;
 
-                        searchList.clear();
-                        for (Widget widget : defaultWidgetList) {
-                            matcher = pattern.matcher(widget.getName());
-                            if (matcher.matches()) {
-                                searchList.add(widget);
-                            }
-                        }
-
-                        Log.i("TextChange", searchList.size() + "");
-
-                        if (searchList.size() <= 0) {
-                            searchListView.setVisibility(View.INVISIBLE);
-                        } else {
-                            searchListView.setVisibility(View.VISIBLE);
-                            adapter.notifyDataSetChanged();
+                    searchList.clear();
+                    for (Widget widget : defaultWidgetList) {
+                        matcher = pattern.matcher(widget.getName());
+                        if (matcher.matches()) {
+                            searchList.add(widget);
                         }
                     }
+
+                    Log.i("TextChange", searchList.size() + "");
+
+                    searchListView.setVisibility(View.VISIBLE);
+                    adapter.notifyDataSetChanged();
+//                    }
                 } catch (Exception e) {
                     Log.i("search", e.toString());
                 }
