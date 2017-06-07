@@ -2,6 +2,7 @@ package chazi.remotecontrol;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -234,7 +237,7 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
         PanelDialog panelDialog = new PanelDialog(PanelListActivity.this, position);
         panelDialog.show();
 
-        return false;
+        return true;
     }
 
     //长按弹出选项
@@ -321,11 +324,16 @@ public class PanelListActivity extends Activity implements AdapterView.OnItemCli
             if (requestCode == REQUEST_FILE && resultCode == Activity.RESULT_OK) {//是否选择，没选择就不会继续
                 Uri uri = data.getData();//得到uri，后面就是将uri转化成file的过程。
 
-                String path = uri.getPath().split(":")[1];
-                File dir = Environment.getExternalStorageDirectory();
-                path = dir.getPath() + "/" + path;
+                Log.i("result", "uri is " + uri.toString());
+                Log.i("result", "scheme is " + uri.getScheme() + "path is " + uri.getPath());
+                Log.i("result", "storage is " + Environment.getExternalStorageDirectory().getPath());
+                Log.i("result", "last path segment is " + uri.getLastPathSegment());
+                Log.i("result", "authority is " + uri.getAuthority());
+                Log.i("result", "scheme specific part is " + uri.getSchemeSpecificPart());
 
-                Log.i("result", path);
+                String path = FileUtil.getPath(PanelListActivity.this,uri);
+
+                Log.i("result", path+"");
 
                 File file = new File(path);
 
