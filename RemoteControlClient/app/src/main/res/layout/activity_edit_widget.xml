@@ -45,7 +45,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/title_rl"
         android:layout_marginBottom="@dimen/menu_height"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/name_ll"
